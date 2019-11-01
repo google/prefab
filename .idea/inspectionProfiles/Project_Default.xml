@@ -1,0 +1,25 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="ArrayInDataClass" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="CanSealedSubClassBeObject" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="ForEachParameterNotUsed" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="HasPlatformType" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="publicAPIOnly" value="false" />
+      <option name="reportPlatformArguments" value="true" />
+    </inspection_tool>
+    <inspection_tool class="ImplicitNullableNothingType" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="InconsistentLineSeparators" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="KDocMissingDocumentation" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="MoveSuspiciousCallableReferenceIntoParentheses" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PackageDirectoryMismatch" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="ProblematicWhitespace" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PublicApiImplicitType" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="reportInternal" value="true" />
+      <option name="reportPrivate" value="true" />
+    </inspection_tool>
+    <inspection_tool class="SuspiciousEqualsCombination" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="UnsafeCastFromDynamic" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="WrapUnaryOperator" enabled="true" level="WARNING" enabled_by_default="true" />
+  </profile>
+</component>
