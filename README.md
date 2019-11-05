@@ -18,6 +18,6 @@ prebuilt libraries it describes. Prefab is:
   or a git submodule would work just as well.
 
 [AAR]: https://developer.android.com/studio/projects/android-library
-[Build system agnostic]: docs/build-systems.md
-[Cross-platform]: docs/platform-support.md
-[metadata]: docs/index.md#metadata
+[Build system agnostic]: https://google.github.io/prefab/build-systems.html
+[Cross-platform]: https://google.github.io/prefab/platform-support.html
+[metadata]: https://google.github.io/prefab/#metadata
