@@ -40,7 +40,11 @@ repositories {
 
 subprojects {
     group = "com.google.prefab"
-    version = "0.1.0"
+    version = "1.0.0" + if (!rootProject.hasProperty("prefab.release")) {
+        "-SNAPSHOT"
+    } else {
+        ""
+    }
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "kotlinx-serialization")
@@ -125,4 +129,9 @@ tasks.named("repositoryDistTar") {
 
 tasks.named("repositoryDistZip") {
     subprojects.map { dependsOn(":${it.name}:publish") }
+}
+
+tasks.register("release") {
+    dependsOn(":build")
+    dependsOn(":dokka")
 }
