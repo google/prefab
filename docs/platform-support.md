@@ -36,7 +36,7 @@ there were both an `ubuntu` and a `linux-ubuntu` plugin with libraries that are
 compatible, their packages would not be mutually usable. Keeping platform
 support centralized avoids this issue.
 
-[Patches]: CONTRIBUTING.md
+[Patches]: https://github.com/google/prefab/blob/master/CONTRIBUTING.md
 
 ### Android
 

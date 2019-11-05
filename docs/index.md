@@ -149,12 +149,12 @@ be extended to include required compiler flags such as a minimum C++ version.
     "export_libraries": [
         "<library link specifier>",
     ],
-    "library_name": "<library file name without file extension>,
+    "library_name": "<library file name without file extension>",
     "android": {
       "export_libraries": [
           "<library link specifier>",
       ],
-      "library_name": "<library file name without file extension>
+      "library_name": "<library file name without file extension>"
     }
 }
 ```
