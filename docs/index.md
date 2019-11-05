@@ -24,8 +24,8 @@ prebuilt libraries it describes. Prefab is:
 
 ## Usage
 
-{% include tip.html content="The Android Gradle Plugin natively supports Prefab
-packages. See TODO for more information." %}
+Note: The Android Gradle Plugin natively supports Prefab packages. See TODO for
+more information.
 
 Prefab is a command line tool the operates on the packages described in this
 document. At least one package path must be given, and each package path should
@@ -65,8 +65,8 @@ target platform.
 For example, the OpenSSL package contains both libssl and libcrypto modules. The
 curl package contains just libcurl.
 
-{% include tip.html content="Header-only libraries can be exposed by a Module
-with an empty `libs` directory." %}
+Note: Header-only libraries can be exposed by a Module with an empty `libs`
+directory.
 
 A Package has the following directory layout:
 

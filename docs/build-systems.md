@@ -27,9 +27,9 @@ add_library(app SHARED app.cpp)
 target_link_libraries(app curl::curl)
 ```
 
-{% include tip.html content="If using the Android Gradle Plugin, the Prefab
-directory will be automatically added to the search path, so you can omit the
-changes to `CMAKE_FIND_ROOT_PATH`." %}
+Note: If using the Android Gradle Plugin, the Prefab directory will be
+automatically added to the search path, so you can omit the changes to
+`CMAKE_FIND_ROOT_PATH`.
 
 [config file package]: https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html
 [`find_package`]: https://cmake.org/cmake/help/latest/command/find_package.html
@@ -61,9 +61,9 @@ $(call import-add-path,/out)
 $(call import-module,prefab/curl)
 ```
 
-{% include tip.html content="If using the Android Gradle Plugin, the Prefab
-directory will be automatically added to the search path, so you can omit the
-`import-add-path` command." %}
+Note: If using the Android Gradle Plugin, the Prefab directory will be
+automatically added to the search path, so you can omit the `import-add-path`
+command.
 
 ## Plugin API
 
