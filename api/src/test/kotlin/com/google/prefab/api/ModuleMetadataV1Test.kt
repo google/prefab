@@ -53,6 +53,8 @@ class ModuleMetadataTest {
         assertEquals(null, moduleMetadata.libraryName)
         assertEquals(null, moduleMetadata.android.exportLibraries)
         assertEquals(null, moduleMetadata.android.libraryName)
+        assertEquals(null, moduleMetadata.gnulinux.exportLibraries)
+        assertEquals(null, moduleMetadata.gnulinux.libraryName)
     }
 
     @Test
@@ -69,6 +71,8 @@ class ModuleMetadataTest {
         assertEquals("libmylibrary", moduleMetadata.libraryName)
         assertEquals(null, moduleMetadata.android.exportLibraries)
         assertEquals(null, moduleMetadata.android.libraryName)
+        assertEquals(null, moduleMetadata.gnulinux.exportLibraries)
+        assertEquals(null, moduleMetadata.gnulinux.libraryName)
     }
 
     @Test
@@ -85,11 +89,10 @@ class ModuleMetadataTest {
         )
         assertEquals(emptyList(), moduleMetadata.exportLibraries)
         assertEquals(null, moduleMetadata.libraryName)
-        assertEquals(
-            listOf("-landroid"),
-            moduleMetadata.android.exportLibraries
-        )
+        assertEquals(listOf("-landroid"), moduleMetadata.android.exportLibraries)
         assertEquals(null, moduleMetadata.android.libraryName)
+        assertEquals(null, moduleMetadata.gnulinux.exportLibraries)
+        assertEquals(null, moduleMetadata.gnulinux.libraryName)
     }
 
     @Test
@@ -102,6 +105,10 @@ class ModuleMetadataTest {
                 "android": {
                     "export_libraries": ["-llog"],
                     "library_name": "libfoo_android"
+                },
+                "gnulinux": {
+                    "export_libraries": ["-lrt"],
+                    "library_name": "libfoo_debug"
                 }
             }
             """.trimIndent()
@@ -110,5 +117,7 @@ class ModuleMetadataTest {
         assertEquals("libfoo", moduleMetadata.libraryName)
         assertEquals(listOf("-llog"), moduleMetadata.android.exportLibraries)
         assertEquals("libfoo_android", moduleMetadata.android.libraryName)
+        assertEquals(listOf("-lrt"), moduleMetadata.gnulinux.exportLibraries)
+        assertEquals("libfoo_debug", moduleMetadata.gnulinux.libraryName)
     }
 }

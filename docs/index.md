@@ -8,8 +8,8 @@ prebuilt libraries it describes. Prefab is:
   it's simple to provide support for any build system not supported out of the
   box.
 
-* [Cross-platform] capable. Prefab currently handles only Android libraries, but
-  is designed to handle any number of platforms.
+* [Cross-platform]. Prefab currently handles Android and GNU/Linux libraries,
+  and is designed to handle any number of platforms.
 
 * Distribution agnostic. Prefab is only an archive format, and can be
   distributed with whatever package management infrastructure best fits your use
@@ -92,7 +92,7 @@ automatically added to the consumer's header search path.
 
 The libs directory contains a subdirectory for every supported platform. The
 `<platform>` portion of the directory name identifies the family of the platform
-(for example, "android", "linux", or "windows") and more exact matching is
+(for example, "android", "gnulinux", or "windows") and more exact matching is
 performed in a platform-dependent manner. For example, Android libraries use an
 arbitrary identifier and read additional platform data such as ABI and minimum
 supported OS version from an abi.json file contained in the directory.
@@ -155,6 +155,12 @@ be extended to include required compiler flags such as a minimum C++ version.
           "<library link specifier>",
       ],
       "library_name": "<library file name without file extension>
+    },
+    "gnulinux": {
+      "export_libraries": [
+          "<library link specifier>",
+      ],
+      "library_name": "<library file name without file extension>
     }
 }
 ```
@@ -176,9 +182,9 @@ made available to the consuming package.
 This field is optional. If not specified, the library name is assumed to be
 `lib<module name>`.
 
-The `android` and field allows either `export_libraries` or `library_name` to be
-overridden dependening on the target platform. Each subfield follows the same
-rules of the main properties with the same name. If specified, the
-platform-specific properties override the generic properties.
+The `android` and `gnulinux` fields allow either `export_libraries` or
+`library_name` to be overridden dependening on the target platform. Each
+subfield follows the same rules of the main properties with the same name. If
+specified, the platform-specific properties override the generic properties.
 
 TODO: Example.

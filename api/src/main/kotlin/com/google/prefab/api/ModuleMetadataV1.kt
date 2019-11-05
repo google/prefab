@@ -46,6 +46,8 @@ data class PlatformSpecificModuleMetadataV1(
  * the directory.
  * @property[android] Android specific values that override the main values if
  * present.
+ * @property[gnulinux] GNU/Linux specific values that override the main values
+ * if present.
  */
 @Serializable
 data class ModuleMetadataV1(
@@ -60,5 +62,7 @@ data class ModuleMetadataV1(
     // packages because we wouldn't know whether the exported libraries were
     // Android specific or not.
     val android: PlatformSpecificModuleMetadataV1 =
+        PlatformSpecificModuleMetadataV1(null, null),
+    val gnulinux: PlatformSpecificModuleMetadataV1 =
         PlatformSpecificModuleMetadataV1(null, null)
 )

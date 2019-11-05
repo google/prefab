@@ -134,6 +134,7 @@ class Module(val path: Path, val pkg: Package) {
             List<LibraryReference> {
         val platformSpecificLibs = when (platform) {
             is Android -> metadata.android.exportLibraries
+            is GnuLinux -> metadata.gnulinux.exportLibraries
             else -> throw IllegalArgumentException(
                 "Unrecognized platform: $platform"
             )
@@ -153,6 +154,7 @@ class Module(val path: Path, val pkg: Package) {
     fun libraryNameForPlatform(platform: PlatformDataInterface): String {
         return when (platform) {
             is Android -> metadata.android.libraryName
+            is GnuLinux -> metadata.gnulinux.libraryName
             else -> throw IllegalArgumentException(
                 "Unrecognized platform: $platform"
             )

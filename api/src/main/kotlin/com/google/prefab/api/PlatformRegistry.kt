@@ -23,7 +23,8 @@ object PlatformRegistry {
     /**
      * A list of all supported platforms.
      */
-    private val platforms: List<PlatformFactoryInterface> = listOf(Android)
+    private val platforms: List<PlatformFactoryInterface> =
+        listOf(Android, GnuLinux)
 
     /**
      * Determines if the given [identifier] matches a supported platform.

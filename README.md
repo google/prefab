@@ -8,8 +8,8 @@ prebuilt libraries it describes. Prefab is:
   it's simple to provide support for any build system not supported out of the
   box.
 
-* [Cross-platform] capable. Prefab currently handles only Android libraries, but
-  is designed to handle any number of platforms.
+* [Cross-platform]. Prefab currently handles Android and GNU/Linux libraries,
+  and is designed to handle any number of platforms.
 
 * Distribution agnostic. Prefab is only an archive format, and can be
   distributed with whatever package management infrastructure best fits your use

@@ -25,9 +25,7 @@ split into the following packages:
 
 ## Supported Platforms
 
-At present, only Android targets are supported. Support for desktop Linux is a
-work in progress (TODO: send PR and link), with some outstanding questions about
-exactly what constraints need to be defined for that platform. [Patches] to
+At present, only Android and GNU/Linux targets are supported. [Patches] to
 support additional targets are welcome. Unlike build system support, platform
 support cannot be provided as a plugin and must be directly implemented in
 Prefab. This is to avoid the fragmentation of packages that would occur if there
@@ -64,6 +62,26 @@ the requested configuration:
 2. API for a dependency cannot be higher than `--os-version`.
 
 TODO: Implement additional requirements. STL checks, NDK version ABI boundaries.
+
+### GNU/Linux
+
+GNU/Linux libraries use an arbitrary identifier in the library directory name
+used to separate the libraries only. Actual identification of the libraries
+contained is done iwth an `abi.json` metadata file within the library directory.
+This metadata has the following format:
+
+```json
+{
+    "arch": "amd64",
+    "glibc_version": "2.28"
+}
+```
+
+At present, the following rules are used to select GNU/Linux libraries based on
+the requested configuration:
+
+1. ABI must match exactly.
+2. glibc version for a dependency cannot be higher than `--os-version`.
 
 ## Platform API
 

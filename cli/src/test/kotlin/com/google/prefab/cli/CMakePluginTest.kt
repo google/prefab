@@ -17,6 +17,7 @@
 package com.google.prefab.cli
 
 import com.google.prefab.api.Android
+import com.google.prefab.api.GnuLinux
 import com.google.prefab.api.Package
 import com.google.prefab.cmake.CMakePlugin
 import org.junit.jupiter.api.TestInstance
@@ -121,6 +122,71 @@ class CMakePluginTest {
             add_library(qux::libqux SHARED IMPORTED)
             set_target_properties(qux::libqux PROPERTIES
                 IMPORTED_LOCATION "$quxDir/libs/android.arm64-v8a/libqux.a"
+                INTERFACE_INCLUDE_DIRECTORIES "$quxDir/include"
+                INTERFACE_LINK_LIBRARIES "foo::bar"
+            )
+
+
+            """.trimIndent(), quxConfigFile.readText()
+        )
+    }
+
+    @Test
+    fun `GNU Linux support works`() {
+        val fooPath =
+            Paths.get(this.javaClass.getResource("packages/foo").toURI())
+        val foo = Package(fooPath)
+
+        val quxPath =
+            Paths.get(this.javaClass.getResource("packages/qux").toURI())
+        val qux = Package(quxPath)
+
+        CMakePlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
+            listOf(GnuLinux(GnuLinux.Arch.Amd64, GnuLinux.GlibcVersion(2, 28)))
+        )
+
+        val fooConfigFile =
+            outputDirectory.resolve("${foo.name}-config.cmake").toFile()
+        assertTrue(fooConfigFile.exists())
+
+        val quxConfigFile =
+            outputDirectory.resolve("${qux.name}-config.cmake").toFile()
+        assertTrue(quxConfigFile.exists())
+
+        val barDir = fooPath.resolve("modules/bar")
+        val bazDir = fooPath.resolve("modules/baz")
+        assertEquals(
+            """
+            find_package(quux REQUIRED)
+
+            find_package(qux REQUIRED)
+
+            add_library(foo::bar SHARED IMPORTED)
+            set_target_properties(foo::bar PROPERTIES
+                IMPORTED_LOCATION "$barDir/libs/gnulinux.amd64/libbar.so"
+                INTERFACE_INCLUDE_DIRECTORIES "$barDir/include"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+
+            add_library(foo::baz SHARED IMPORTED)
+            set_target_properties(foo::baz PROPERTIES
+                IMPORTED_LOCATION "$bazDir/libs/gnulinux.amd64/libbaz.so"
+                INTERFACE_INCLUDE_DIRECTORIES "$bazDir/include"
+                INTERFACE_LINK_LIBRARIES "foo::bar;qux::libqux"
+            )
+
+
+            """.trimIndent(), fooConfigFile.readText()
+        )
+
+        val quxDir = quxPath.resolve("modules/libqux")
+        assertEquals(
+            """
+            find_package(foo REQUIRED)
+
+            add_library(qux::libqux SHARED IMPORTED)
+            set_target_properties(qux::libqux PROPERTIES
+                IMPORTED_LOCATION "$quxDir/libs/gnulinux.amd64/libqux.a"
                 INTERFACE_INCLUDE_DIRECTORIES "$quxDir/include"
                 INTERFACE_LINK_LIBRARIES "foo::bar"
             )

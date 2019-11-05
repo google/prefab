@@ -17,6 +17,7 @@
 package com.google.prefab.cli
 
 import com.google.prefab.api.Android
+import com.google.prefab.api.GnuLinux
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.Module
 import com.google.prefab.api.Package
@@ -31,6 +32,10 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ModuleTest {
     private val android: PlatformDataInterface = Android(Android.Abi.Arm64, 21)
+    private val gnulinux: PlatformDataInterface = GnuLinux(
+        GnuLinux.Arch.Amd64,
+        GnuLinux.GlibcVersion(2, 28)
+    )
 
     @Test
     fun `can load basic module`() {
@@ -46,12 +51,14 @@ class ModuleTest {
         assertEquals("//foo/bar", module.canonicalName)
         assertEquals(modulePath, module.path)
         assertEquals("libbar", module.libraryNameForPlatform(android))
+        assertEquals("libbar", module.libraryNameForPlatform(gnulinux))
         assertEquals(
             listOf(LibraryReference.Literal("-landroid")),
             module.linkLibsForPlatform(android)
         )
+        assertEquals(emptyList(), module.linkLibsForPlatform(gnulinux))
 
-        assertEquals(4, module.libraries.size)
+        assertEquals(5, module.libraries.size)
     }
 
     @Test
@@ -72,7 +79,12 @@ class ModuleTest {
             listOf(LibraryReference.External("foo", "bar")),
             module.linkLibsForPlatform(android)
         )
+        assertEquals("libqux", module.libraryNameForPlatform(gnulinux))
+        assertEquals(
+            listOf(LibraryReference.External("foo", "bar")),
+            module.linkLibsForPlatform(gnulinux)
+        )
 
-        assertEquals(4, module.libraries.size)
+        assertEquals(5, module.libraries.size)
     }
 }

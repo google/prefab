@@ -17,6 +17,7 @@
 package com.google.prefab.cli
 
 import com.google.prefab.api.Android
+import com.google.prefab.api.GnuLinux
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.MissingArtifactIDException
 import com.google.prefab.api.Package
@@ -31,6 +32,10 @@ import kotlin.test.assertFailsWith
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PackageTest {
     private val android: PlatformDataInterface = Android(Android.Abi.Arm64, 21)
+    private val gnulinux: PlatformDataInterface = GnuLinux(
+        GnuLinux.Arch.Amd64,
+        GnuLinux.GlibcVersion(2, 28)
+    )
 
     @Test
     fun `can load basic package`() {
@@ -48,20 +53,29 @@ class PackageTest {
         assertEquals("bar", bar.name)
         assertEquals(packagePath.resolve("modules/bar"), bar.path)
         assertEquals("libbar", bar.libraryNameForPlatform(android))
+        assertEquals("libbar", bar.libraryNameForPlatform(gnulinux))
         assertEquals(
             listOf(LibraryReference.Literal("-landroid")),
             bar.linkLibsForPlatform(android)
         )
+        assertEquals(emptyList(), bar.linkLibsForPlatform(gnulinux))
 
         assertEquals("baz", baz.name)
         assertEquals(packagePath.resolve("modules/baz"), baz.path)
         assertEquals("libbaz", baz.libraryNameForPlatform(android))
+        assertEquals("libbaz", baz.libraryNameForPlatform(gnulinux))
         assertEquals(
             listOf(
                 LibraryReference.Literal("-llog"),
                 LibraryReference.Local("bar"),
                 LibraryReference.External("qux", "libqux")
             ), baz.linkLibsForPlatform(android)
+        )
+        assertEquals(
+            listOf(
+                LibraryReference.Local("bar"),
+                LibraryReference.External("qux", "libqux")
+            ), baz.linkLibsForPlatform(gnulinux)
         )
     }
 
