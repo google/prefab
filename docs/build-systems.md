@@ -8,7 +8,7 @@ and [ndk-build]. Additional plugins can be provided at run-time with the
 plugin to Prefab.
 
 [CMake]: https://cmake.org/
-[contributing]: https://google.github.io/prefab/platform-support.html
+[contributing]: https://github.com/google/prefab/blob/master/CONTRIBUTING.md
 [ndk-build]: https://developer.android.com/ndk/guides/ndk-build
 
 ## Supported Build Systems
