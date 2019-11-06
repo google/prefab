@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+extra["pomName"] = "Prefab CMake Plugin"
+extra["pomDescription"] = "The Prefab CMake build plugin."
+
 dependencies {
     api(project(":api"))
 }
