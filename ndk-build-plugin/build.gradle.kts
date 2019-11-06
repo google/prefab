@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+extra["pomName"] = "Prefab ndk-build Plugin"
+extra["pomDescription"] = "The Prefab ndk-build plugin."
+
 dependencies {
     api(project(":api"))
 }

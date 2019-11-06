@@ -18,6 +18,9 @@ plugins {
     application
 }
 
+extra["pomName"] = "Prefab"
+extra["pomDescription"] = "The main Prefab program."
+
 dependencies {
     implementation("com.github.ajalt:clikt:2.2.0")
     testImplementation("io.mockk:mockk:1.9.3")
