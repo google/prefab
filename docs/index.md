@@ -83,6 +83,7 @@ A Package has the following directory layout:
             include/
             libs/
                 <platform>.<id>/
+                    include/
                     <lib>
                 ...
         ...
@@ -101,9 +102,16 @@ performed in a platform-dependent manner. For example, Android libraries use an
 arbitrary identifier and read additional platform data such as ABI and minimum
 supported OS version from an abi.json file contained in the directory.
 
+The libs directory is optional. A module without any libraries is a header only
+library and has no platform restrictions.
+
 The file name of the contained library is determined in a platform-dependent
 manner. For Android, the format is `lib${name}.so`, but for Windows it would be
 `${name}.dll`.
+
+The include directory within each platform's library directory is optional. If
+present, that include path will be used instead of the module headers for that
+platform.
 
 TODO: Example.
 
@@ -118,7 +126,7 @@ and any inter-package dependencies the package may have.
 
 ```json
 {
-    "schema_version": "1",
+    "schema_version": 1,
     "name": "<package name>",
     "dependencies": [
         "<dependency name>",

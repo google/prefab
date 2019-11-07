@@ -72,6 +72,15 @@ class Module(val path: Path, val pkg: Package) {
     val canonicalName: String = "//${pkg.name}/$name"
 
     /**
+     * The include directory that should be exported to dependents.
+     *
+     * Note that this should only be used by build plugins for header-only
+     * modules. If the module is not header only, [PrebuiltLibrary.includePath]
+     * should be used instead as the include directory may change per-platform.
+     */
+    val includePath: Path = path.resolve("include")
+
+    /**
      * The list of [prebuilt libraries][PrebuiltLibrary] in this module.
      */
     val libraries: List<PrebuiltLibrary> =
@@ -116,12 +125,6 @@ class Module(val path: Path, val pkg: Package) {
         // More than one library might satisfy the requirements.
         return libraries.find { platformData.canUse(it) }
     }
-
-    // TODO: Handle per-platform and per-subplatform includes?
-    /**
-     * The include directory that should be exported to dependents.
-     */
-    val includePath: Path = path.resolve("include")
 
     /**
      * Get libraries that should be exported to dependents.

@@ -106,7 +106,6 @@ class CMakePlugin(
         val target = "${pkg.name}::${module.name}"
 
         if (module.isHeaderOnly) {
-
             configFile.appendText(
                 """
                 add_library($target INTERFACE)
@@ -122,19 +121,16 @@ class CMakePlugin(
             val prebuilt =
                 module.getLibraryFor(requirements) ?: throw RuntimeException(
                     "No library found matching $requirements for " +
-                            "${module.canonicalName} and module is not header" +
+                            "${module.canonicalName} and module is not header " +
                             "only."
                 )
-            val libraryPath = requirements.libraryFileFromDirectory(
-                prebuilt.directory, module
-            )
 
             configFile.appendText(
                 """
                 add_library($target SHARED IMPORTED)
                 set_target_properties($target PROPERTIES
-                    IMPORTED_LOCATION "$libraryPath"
-                    INTERFACE_INCLUDE_DIRECTORIES "${module.includePath}"
+                    IMPORTED_LOCATION "${prebuilt.path}"
+                    INTERFACE_INCLUDE_DIRECTORIES "${prebuilt.includePath}"
                     INTERFACE_LINK_LIBRARIES "$libraries"
                 )
 
