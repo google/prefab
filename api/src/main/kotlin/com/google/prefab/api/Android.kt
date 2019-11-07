@@ -26,9 +26,10 @@ import kotlin.math.max
  *
  * @property[abi] The ABI targeted by this build.
  * @property[api] The Android minSdkVersion targeted by this build.
+ * @property[stl] The Android STL targeted by this build.
  * @constructor Creates an Android requirements object.
  */
-class Android(val abi: Abi, api: Int) : PlatformDataInterface {
+class Android(val abi: Abi, api: Int, val stl: Stl) : PlatformDataInterface {
     val api: Int = when (abi) {
         Abi.Arm32, Abi.X86 -> api
         Abi.Arm64, Abi.X86_64 -> max(api, 21)
@@ -77,16 +78,82 @@ class Android(val abi: Abi, api: Int) : PlatformDataInterface {
         }
     }
 
-    override fun canUse(requirement: PlatformDataInterface): Boolean {
-        if (requirement !is Android) {
+    /**
+     * An Android STL.
+     *
+     * See https://developer.android.com/ndk/guides/cpp-support for more
+     * information. Note that we include support for STLs not listed on that
+     * page because we do support old artifacts that may have been built with a
+     * now unsupported NDK.
+     *
+     * @property[stlName] The name of the STL.
+     * @property[isShared] True if this STL is a shared library.
+     */
+    enum class Stl(val stlName: String, val isShared: Boolean) {
+        /**
+         * Shared libc++.
+         */
+        CxxShared("c++_shared", true),
+
+        /**
+         * Static libc++.
+         */
+        CxxStatic("c++_static", false),
+
+        /**
+         * Share GNU libstdc++.
+         */
+        GnustlShared("gnustl_shared", true),
+
+        /**
+         * Static GNU libstdc++.
+         */
+        GnustlStatic("gnustl_static", false),
+
+        /**
+         * No STL used.
+         */
+        None("none", false),
+
+        /**
+         * Shared STLport.
+         */
+        StlportShared("stlport_shared", true),
+
+        /**
+         * Static STLport.
+         */
+        StlportStatic("stlport_static", false),
+
+        /**
+         * Bionic's libstdc++.
+         */
+        System("system", true);
+
+        companion object {
+            /**
+             * Constructs an [Stl] from the given string.
+             *
+             * @param[str] A string matching an Android [STL][Stl].
+             * @throws[IllegalArgumentException] No matching [Stl] was found.
+             * @return The [Stl] matching [str] if a match was found.
+             */
+            fun fromString(str: String): Stl =
+                values().find { it.stlName == str }
+                    ?: throw IllegalArgumentException("Unknown STL: $str")
+        }
+    }
+
+    override fun canUse(library: PrebuiltLibrary): Boolean {
+        if (library.platform !is Android) {
             return false
         }
 
-        if (abi != requirement.abi) {
+        if (abi != library.platform.abi) {
             return false
         }
 
-        if (api < requirement.api) {
+        if (api < library.platform.api) {
             return false
         }
 
@@ -112,7 +179,11 @@ class Android(val abi: Abi, api: Int) : PlatformDataInterface {
                 directory.toFile().resolve("abi.json").readText()
             )
 
-            return Android(Abi.fromString(metadata.abi), metadata.api)
+            return Android(
+                Abi.fromString(metadata.abi),
+                metadata.api,
+                Stl.fromString(metadata.stl)
+            )
         }
     }
 }

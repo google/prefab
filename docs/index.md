@@ -42,6 +42,8 @@ Usage: prefab [OPTIONS] [PACKAGE_PATH]...
 Android specific configuration options:
   --abi TEXT                       Target ABI.
   --os-version TEXT                Target OS version.
+  --stl [c++_shared|c++_static|gnustl_shared|gnustl_static|none|stlport_shared|stlport_static|system]
+                                   STL used by the application.
 
 Options:
   --build-system TEXT  Generate integration for the given build system.

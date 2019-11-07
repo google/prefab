@@ -50,10 +50,7 @@ metadata has the following format:
     "abi": "arm64-v8a",
     "api": 24,
     "ndk": 19,
-    "stl": {
-        "name": "libc++",
-        "type": "shared"
-    }
+    "stl": "libc++_shared"
 }
 ```
 

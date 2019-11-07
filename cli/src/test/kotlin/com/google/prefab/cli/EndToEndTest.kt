@@ -39,16 +39,12 @@ class EndToEndTest {
         val ex = assertFailsWith(FatalApplicationError::class) {
             Cli().main(
                 listOf(
-                    "--platform",
-                    "android",
-                    "--abi",
-                    "arm64-v8a",
-                    "--os-version",
-                    "21",
-                    "--build-system",
-                    "ndk-build",
-                    "--output",
-                    outputDirectory.toString(),
+                    "--platform", "android",
+                    "--abi", "arm64-v8a",
+                    "--os-version", "21",
+                    "--stl", "c++_shared",
+                    "--build-system", "ndk-build",
+                    "--output", outputDirectory.toString(),
                     packagePath.toString()
                 )
             )

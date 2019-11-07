@@ -24,19 +24,17 @@ import java.nio.file.Path
  */
 interface PlatformDataInterface {
     /**
-     * Determines if the given [requirement] can be used with this platform.
+     * Determines if the given [library] can be used with this platform.
      *
      * This [PlatformDataInterface] object defines the platform requirements
-     * specified by the user. The given [requirement] object defines the
-     * requirements of a prebuilt library found in the module. This function
-     * returns true if the library can be used given the user's requirements.
+     * specified by the user. This function returns true if the [library] can be
+     * used given the user's requirements.
      *
-     * @param[requirement] The [platform requirements][PlatformDataInterface]
-     * for a library to be checked for compatibility.
-     * @return true if the given [requirement] is compatible with this
+     * @param[library] The library to be checked for compatibility.
+     * @return true if the given [library] is compatible with this
      * [PlatformDataInterface] platform.
      */
-    fun canUse(requirement: PlatformDataInterface): Boolean
+    fun canUse(library: PrebuiltLibrary): Boolean
 
     /**
      * Returns the library file found in the given directory.

@@ -49,7 +49,7 @@ class NdkBuildPluginTest {
     fun `stale files are removed from extant output directory`() {
         assertTrue(staleFile.toFile().exists())
         NdkBuildPlugin(staleOutputDir.toFile(), emptyList()).generate(
-            listOf(Android(Android.Abi.Arm64, 21))
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
         )
         assertFalse(staleFile.toFile().exists())
     }
@@ -65,7 +65,7 @@ class NdkBuildPluginTest {
         val qux = Package(quxPath)
 
         NdkBuildPlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
-            Android.Abi.values().map { Android(it, 19) }
+            Android.Abi.values().map { Android(it, 19, Android.Stl.CxxShared) }
         )
 
         val fooAndroidMk = outputDirectory.resolve("foo/Android.mk").toFile()
@@ -248,7 +248,7 @@ class NdkBuildPluginTest {
         val qux = Package(quxPath)
 
         NdkBuildPlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
-            listOf(Android(Android.Abi.Arm64, 19))
+            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
         )
 
         val fooAndroidMk = outputDirectory.resolve("foo/Android.mk").toFile()
@@ -339,7 +339,7 @@ class NdkBuildPluginTest {
                 outputDirectory.toFile(),
                 listOf(moduleA, moduleB)
             ).generate(
-                listOf(Android(Android.Abi.Arm64, 19))
+                listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
             )
         }
     }

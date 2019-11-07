@@ -49,7 +49,7 @@ class CMakePluginTest {
     fun `multi-target generations are rejected`() {
         val generator = CMakePlugin(staleOutputDir.toFile(), emptyList())
         val requirements =
-            Android.Abi.values().map { Android(it, 21) }
+            Android.Abi.values().map { Android(it, 21, Android.Stl.CxxShared) }
         assertTrue(requirements.size > 1)
         assertThrows<UnsupportedOperationException> {
             generator.generate(requirements)
@@ -60,7 +60,7 @@ class CMakePluginTest {
     fun `stale files are removed from extant output directory`() {
         assertTrue(staleFile.toFile().exists())
         CMakePlugin(staleOutputDir.toFile(), emptyList()).generate(
-            listOf(Android(Android.Abi.Arm64, 21))
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
         )
         assertFalse(staleFile.toFile().exists())
     }
@@ -76,7 +76,7 @@ class CMakePluginTest {
         val qux = Package(quxPath)
 
         CMakePlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
-            listOf(Android(Android.Abi.Arm64, 19))
+            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
         )
 
         val fooConfigFile =
@@ -136,7 +136,7 @@ class CMakePluginTest {
             Paths.get(this.javaClass.getResource("packages/header_only").toURI())
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
-            listOf(Android(Android.Abi.Arm64, 21))
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
         )
 
         val name = pkg.name

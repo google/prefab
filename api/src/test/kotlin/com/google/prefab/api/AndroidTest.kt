@@ -16,6 +16,8 @@
 
 package com.google.prefab.api
 
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,24 +28,42 @@ import kotlin.test.assertTrue
 class AndroidTest {
     @Test
     fun `ABIs must match`() {
-        val arm32 = Android(Android.Abi.Arm32, 21)
-        val arm64 = Android(Android.Abi.Arm64, 21)
-        assertFalse(arm32.canUse(arm64))
-        assertFalse(arm64.canUse(arm32))
-        assertTrue(arm64.canUse(arm64))
+        val arm32 = Android(Android.Abi.Arm32, 21, Android.Stl.CxxShared)
+        val arm64 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared)
+        val arm32Lib = mockk<PrebuiltLibrary>()
+        val arm64Lib = mockk<PrebuiltLibrary>()
+        every { arm32Lib.platform } returns arm32
+        every { arm64Lib.platform } returns arm64
+        assertFalse(arm32.canUse(arm64Lib))
+        assertFalse(arm64.canUse(arm32Lib))
+        assertTrue(arm64.canUse(arm64Lib))
     }
 
     @Test
     fun `OS version constraint only allows equal or older dependencies`() {
-        val old = Android(Android.Abi.Arm32, 16)
-        val new = Android(Android.Abi.Arm32, 21)
-        assertTrue(new.canUse(old))
-        assertFalse(old.canUse(new))
+        val old = Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared)
+        val new = Android(Android.Abi.Arm32, 21, Android.Stl.CxxShared)
+        val oldLib = mockk<PrebuiltLibrary>()
+        val newLib = mockk<PrebuiltLibrary>()
+        every { oldLib.platform } returns old
+        every { newLib.platform } returns new
+        assertTrue(new.canUse(oldLib))
+        assertFalse(old.canUse(newLib))
+    }
+
+    @Test
+    fun `STL matching constraints are enforced`() {
     }
 
     @Test
     fun `OS version pulled up to 21 for LP64`() {
-        assertEquals(16, Android(Android.Abi.Arm32, 16).api)
-        assertEquals(21, Android(Android.Abi.Arm64, 16).api)
+        assertEquals(
+            16,
+            Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared).api
+        )
+        assertEquals(
+            21,
+            Android(Android.Abi.Arm64, 16, Android.Stl.CxxShared).api
+        )
     }
 }

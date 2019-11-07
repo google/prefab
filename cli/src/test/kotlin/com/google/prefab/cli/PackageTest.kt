@@ -30,7 +30,8 @@ import kotlin.test.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PackageTest {
-    private val android: PlatformDataInterface = Android(Android.Abi.Arm64, 21)
+    private val android: PlatformDataInterface =
+        Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared)
 
     @Test
     fun `can load basic package`() {
