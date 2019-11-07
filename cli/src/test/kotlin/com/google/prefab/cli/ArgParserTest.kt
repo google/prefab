@@ -142,6 +142,7 @@ class ArgParserTest {
                 listOf(
                     "--platform", "android",
                     "--os-version", "21",
+                    "--stl", "c++_shared",
                     "--build-system", "ndk-build",
                     "--output", "out",
                     "foo"
@@ -157,6 +158,7 @@ class ArgParserTest {
                 listOf(
                     "--platform", "android",
                     "--os-version", "21",
+                    "--stl", "c++_shared",
                     "--build-system", "ndk-build",
                     "--output", "out",
                     plug1.path
@@ -172,6 +174,7 @@ class ArgParserTest {
                 listOf(
                     "--platform", "android",
                     "--os-version", "21",
+                    "--stl", "c++_shared",
                     "--build-system", "ndk-build",
                     "--output", "out"
                 )
@@ -186,6 +189,7 @@ class ArgParserTest {
                 "--platform", "android",
                 "--abi", "arm64-v8a",
                 "--os-version", "21",
+                "--stl", "c++_shared",
                 "--build-system", "ndk-build",
                 "--output", "out",
                 "--plugin-path", plug1.path,
@@ -218,6 +222,7 @@ class ArgParserTest {
                     "--platform", "android",
                     "--abi", "arm64-v8a",
                     "--os-version", "21",
+                    "--stl", "c++_shared",
                     "--build-system", "ndk-build",
                     "--output", "out",
                     packageA.toString(),

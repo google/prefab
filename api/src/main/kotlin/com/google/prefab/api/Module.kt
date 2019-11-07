@@ -114,7 +114,7 @@ class Module(val path: Path, val pkg: Package) {
     fun getLibraryFor(platformData: PlatformDataInterface): PrebuiltLibrary? {
         // TODO: Find best fit.
         // More than one library might satisfy the requirements.
-        return libraries.find { platformData.canUse(it.platform) }
+        return libraries.find { platformData.canUse(it) }
     }
 
     // TODO: Handle per-platform and per-subplatform includes?

@@ -27,6 +27,7 @@ import com.github.ajalt.clikt.parameters.groups.required
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.google.prefab.api.Android
 import com.google.prefab.api.Package
@@ -65,6 +66,20 @@ class AndroidConfig :
      * Target OS version.
      */
     val osVersion: String by option(help = "Target OS version.").required()
+
+    /**
+     * STL used by the application.
+     */
+    val stl: String by option(help = "STL used by the application.").choice(
+        "c++_shared",
+        "c++_static",
+        "gnustl_shared",
+        "gnustl_static",
+        "none",
+        "stlport_shared",
+        "stlport_static",
+        "system"
+    ).required()
 }
 
 // Open for testing.
@@ -112,17 +127,15 @@ open class Cli : CliktCommand(help = "prefab") {
             Collection<Android> {
         val abi = config.abi
         val osVersion = config.osVersion
+        val stl = Android.Stl.fromString(config.stl)
         if (abi != null) {
             return listOf(
-                Android(
-                    Android.Abi.fromString(abi),
-                    osVersion.toInt()
-                )
+                Android(Android.Abi.fromString(abi), osVersion.toInt(), stl)
             )
         }
 
         // If --abi wasn't provided, build for every ABI.
-        return Android.Abi.values().map { Android(it, osVersion.toInt()) }
+        return Android.Abi.values().map { Android(it, osVersion.toInt(), stl) }
     }
 
     private val platformRequirements: Collection<PlatformDataInterface>

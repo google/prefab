@@ -19,16 +19,6 @@ package com.google.prefab.api
 import kotlinx.serialization.Serializable
 
 /**
- * The STL metadata contained by [AndroidAbiMetadata].
- *
- * @property[name] The name of the STL.
- * @property[type] The type of the STL. Maybe be either `static`, `shared`, or
- * `none`.
- */
-@Serializable
-data class StlData(val name: String, val type: String)
-
-/**
  * The Android abi.json schema.
  *
  * @property[abi] The ABI name of the described library. For a list of valid ABI
@@ -43,5 +33,5 @@ data class AndroidAbiMetadata(
     val abi: String,
     val api: Int,
     val ndk: Int,
-    val stl: StlData
+    val stl: String
 )

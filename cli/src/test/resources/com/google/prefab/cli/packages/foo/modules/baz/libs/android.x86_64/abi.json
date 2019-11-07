@@ -2,8 +2,5 @@
   "abi": "x86_64",
   "api": 21,
   "ndk": 19,
-  "stl": {
-    "name": "libc++",
-    "type": "shared"
-  }
+  "stl": "c++_shared"
 }
