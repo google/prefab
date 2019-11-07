@@ -35,6 +35,8 @@ class Android(val abi: Abi, api: Int, val stl: Stl) : PlatformDataInterface {
         Abi.Arm64, Abi.X86_64 -> max(api, 21)
     }
 
+    override fun toString(): String = "Android($abi, $api, $stl)"
+
     /**
      * An Android ABI.
      *
