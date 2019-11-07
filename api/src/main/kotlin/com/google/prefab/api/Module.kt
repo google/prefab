@@ -75,7 +75,7 @@ class Module(val path: Path, val pkg: Package) {
      * The list of [prebuilt libraries][PrebuiltLibrary] in this module.
      */
     val libraries: List<PrebuiltLibrary> =
-        path.resolve("libs").toFile()?.listFiles()?.map { directory ->
+        path.resolve("libs").toFile().listFiles()?.map { directory ->
             val basename = directory.toPath().fileName.toString()
             val components = basename.split(".", limit = 2)
             if (components.size != 2) {
