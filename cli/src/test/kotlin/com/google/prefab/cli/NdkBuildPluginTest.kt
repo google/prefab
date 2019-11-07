@@ -343,4 +343,49 @@ class NdkBuildPluginTest {
             )
         }
     }
+
+    @Test
+    fun `header only module works`() {
+        val packagePath =
+            Paths.get(this.javaClass.getResource("packages/header_only").toURI())
+        val pkg = Package(packagePath)
+        NdkBuildPlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
+        )
+
+        val androidMk =
+            outputDirectory.resolve("header_only/Android.mk").toFile()
+        assertTrue(androidMk.exists())
+
+        val fooDir = packagePath.resolve("modules/foo")
+        val barDir = packagePath.resolve("modules/bar")
+        assertEquals(
+            """
+            LOCAL_PATH := $(call my-dir)
+
+            ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := bar
+            LOCAL_SRC_FILES := $barDir/libs/android.arm64-v8a/libbar.so
+            LOCAL_EXPORT_C_INCLUDES := $barDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES := foo
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := foo
+            LOCAL_EXPORT_C_INCLUDES := $fooDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(BUILD_STATIC_LIBRARY)
+
+            endif  # arm64-v8a
+
+
+            """.trimIndent(), androidMk.readText()
+        )
+    }
 }
