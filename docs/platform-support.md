@@ -59,8 +59,10 @@ the requested configuration:
 
 1. ABI must match exactly.
 2. API for a dependency cannot be higher than `--os-version`.
+3. STLs must be compatible as defined by
+   `com.google.prefab.api.Android::stlsAreCompatible`.
 
-TODO: Implement additional requirements. STL checks, NDK version ABI boundaries.
+TODO: Implement NDK version ABI boundary checks.
 
 ## Platform API
 
