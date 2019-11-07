@@ -35,7 +35,7 @@ Structure](#package-structure).
 TODO: Improve usage message.
 
 ```text
-Usage: prefab [OPTIONS] [PACKAGE_PATH]...
+Usage: prefab [OPTIONS] PACKAGE_PATH...
 
   prefab
 
