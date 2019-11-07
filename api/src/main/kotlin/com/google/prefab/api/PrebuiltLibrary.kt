@@ -33,6 +33,16 @@ data class PrebuiltLibrary(
     val platform: PlatformDataInterface
 ) {
     /**
+     * The path to the headers on disk.
+     *
+     * This is the path to the platform-specific include path if it exists.
+     * Otherwise this is the path to the module's include path.
+     */
+    val includePath: Path =
+        directory.resolve("include").takeIf { it.toFile().exists() }
+            ?: module.includePath
+
+    /**
      * The path to the library file on disk.
      */
     val path: Path = platform.libraryFileFromDirectory(directory, module)

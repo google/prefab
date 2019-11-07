@@ -164,4 +164,52 @@ class CMakePluginTest {
             """.trimIndent(), configFile.readText()
         )
     }
+
+    @Test
+    fun `per-platform includes work`() {
+        val path = Paths.get(
+            this.javaClass.getResource("packages/per_platform_includes").toURI()
+        )
+        val pkg = Package(path)
+        CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
+        )
+
+        val name = pkg.name
+        val configFile = outputDirectory.resolve("$name-config.cmake").toFile()
+        assertTrue(configFile.exists())
+
+        val modDir = path.resolve("modules/perplatform")
+        assertEquals(
+            """
+            add_library(per_platform_includes::perplatform SHARED IMPORTED)
+            set_target_properties(per_platform_includes::perplatform PROPERTIES
+                IMPORTED_LOCATION "$modDir/libs/android.arm64-v8a/libperplatform.so"
+                INTERFACE_INCLUDE_DIRECTORIES "$modDir/libs/android.arm64-v8a/include"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+
+
+            """.trimIndent(), configFile.readText()
+        )
+
+        // Only some of the platforms in this module have their own headers.
+        // Verify that the module level headers are used for platforms that
+        // don't.
+        CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.X86_64, 21, Android.Stl.CxxShared))
+        )
+        assertEquals(
+            """
+            add_library(per_platform_includes::perplatform SHARED IMPORTED)
+            set_target_properties(per_platform_includes::perplatform PROPERTIES
+                IMPORTED_LOCATION "$modDir/libs/android.x86_64/libperplatform.so"
+                INTERFACE_INCLUDE_DIRECTORIES "$modDir/include"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+
+
+            """.trimIndent(), configFile.readText()
+        )
+    }
 }

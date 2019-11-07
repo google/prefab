@@ -388,4 +388,84 @@ class NdkBuildPluginTest {
             """.trimIndent(), androidMk.readText()
         )
     }
+
+    @Test
+    fun `per-platform includes work`() {
+        val path = Paths.get(
+            this.javaClass.getResource("packages/per_platform_includes").toURI()
+        )
+        val pkg = Package(path)
+
+        NdkBuildPlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            Android.Abi.values().map { Android(it, 19, Android.Stl.CxxShared) }
+        )
+
+        val androidMk =
+            outputDirectory.resolve("per_platform_includes/Android.mk").toFile()
+        assertTrue(androidMk.exists())
+
+        // Only some of the platforms in this module have their own headers, so
+        // some of these module definitions point into the platform-specific
+        // directory while others point to the module's headers.
+        val modDir = path.resolve("modules/perplatform")
+        assertEquals(
+            """
+            LOCAL_PATH := $(call my-dir)
+
+            ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := perplatform
+            LOCAL_SRC_FILES := $modDir/libs/android.armeabi-v7a/libperplatform.so
+            LOCAL_EXPORT_C_INCLUDES := $modDir/libs/android.armeabi-v7a/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            endif  # armeabi-v7a
+
+            ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := perplatform
+            LOCAL_SRC_FILES := $modDir/libs/android.arm64-v8a/libperplatform.so
+            LOCAL_EXPORT_C_INCLUDES := $modDir/libs/android.arm64-v8a/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            endif  # arm64-v8a
+
+            ifeq ($(TARGET_ARCH_ABI),x86)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := perplatform
+            LOCAL_SRC_FILES := $modDir/libs/android.x86/libperplatform.so
+            LOCAL_EXPORT_C_INCLUDES := $modDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            endif  # x86
+
+            ifeq ($(TARGET_ARCH_ABI),x86_64)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := perplatform
+            LOCAL_SRC_FILES := $modDir/libs/android.x86_64/libperplatform.so
+            LOCAL_EXPORT_C_INCLUDES := $modDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            endif  # x86_64
+
+
+            """.trimIndent(), androidMk.readText()
+        )
+    }
 }

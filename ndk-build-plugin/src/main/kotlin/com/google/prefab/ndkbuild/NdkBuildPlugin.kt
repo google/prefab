@@ -191,7 +191,7 @@ class NdkBuildPlugin(
                 include $(CLEAR_VARS)
                 LOCAL_MODULE := ${module.name}
                 LOCAL_SRC_FILES := ${prebuilt.path}
-                LOCAL_EXPORT_C_INCLUDES := ${module.includePath}
+                LOCAL_EXPORT_C_INCLUDES := ${prebuilt.includePath}
                 LOCAL_EXPORT_SHARED_LIBRARIES :=$exportSharedLibraries
                 LOCAL_EXPORT_STATIC_LIBRARIES :=$exportStaticLibraries
                 LOCAL_EXPORT_LDLIBS :=$exportLdLibs
