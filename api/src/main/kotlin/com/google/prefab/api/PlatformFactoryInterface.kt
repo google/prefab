@@ -40,18 +40,4 @@ interface PlatformFactoryInterface {
      * @return A [PlatformDataInterface] describing the library.
      */
     fun fromLibraryDirectory(directory: Path): PlatformDataInterface
-
-    /**
-     * Constructs a [PlatformDataInterface] matching the requirements specified
-     * by the user.
-     *
-     * @param[abi] The value of the `--abi` argument from the command-line.
-     * @param[osVersion] The value of the `--os-version` argument from the
-     * command-line.
-     * @return A [PlatformDataInterface] match the user's requirements.
-     */
-    fun fromCommandLineArgs(
-        abi: String?,
-        osVersion: String?
-    ): Collection<PlatformDataInterface>
 }

@@ -35,17 +35,19 @@ Structure](#package-structure).
 TODO: Improve usage message.
 
 ```text
-Usage: prefab [OPTIONS] [PACKAGEPATHS]...
+Usage: prefab [OPTIONS] [PACKAGE_PATH]...
 
   prefab
+
+Android specific configuration options:
+  --abi TEXT                       Target ABI.
+  --os-version TEXT                Target OS version.
 
 Options:
   --build-system TEXT  Generate integration for the given build system.
   --output DIRECTORY   Output path for generated build system integration.
   --plugin-path FILE   Path to build system integration plugin.
-  --platform TEXT      Target platform.
-  --abi TEXT           Target ABI.
-  --os-version TEXT    Target OS version.
+  --platform TEXT      Target platform. Only 'android' is currently supported.
   -h, --help           Show this message and exit
 ```
 
