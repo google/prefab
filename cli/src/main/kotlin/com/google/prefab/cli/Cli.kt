@@ -21,14 +21,16 @@ import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.arguments.validate
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
+import com.github.ajalt.clikt.parameters.groups.groupChoice
+import com.github.ajalt.clikt.parameters.groups.required
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.file
+import com.google.prefab.api.Android
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
-import com.google.prefab.api.PlatformRegistry
 import java.io.File
 
 /**
@@ -43,6 +45,27 @@ class DuplicatePackageNamesException(a: Package, b: Package) :
     FatalApplicationError(
         "Multiple packages named ${a.name} found: ${a.path} and ${b.path}."
     )
+
+/**
+ * Platform-specific configuration argument group.
+ */
+sealed class PlatformConfig(name: String): OptionGroup(name)
+
+/**
+ * Android-specific configuration arguments.
+ */
+class AndroidConfig :
+    PlatformConfig("Android specific configuration options") {
+    /**
+     * Target ABI.
+     */
+    val abi: String? by option(help = "Target ABI.")
+
+    /**
+     * Target OS version.
+     */
+    val osVersion: String by option(help = "Target OS version.").required()
+}
 
 // Open for testing.
 /**
@@ -61,19 +84,13 @@ open class Cli : CliktCommand(help = "prefab") {
         help = "Path to build system integration plugin."
     ).file(folderOkay = false, readable = true).multiple()
 
-    // TODO: --help should list supported platforms.
-    private val platform: String by option(
-        help = "Target platform."
-    ).required().validate {
-        require(
-            PlatformRegistry.supports(it)
-        ) { "unsupported platform requested" }
-    }
+    private val platform: PlatformConfig by option(
+        help = "Target platform. Only 'android' is currently supported."
+    ).groupChoice(
+        "android" to AndroidConfig()
+    ).required()
 
-    private val abi: String? by option(help = "Target ABI.")
-    private val osVersion: String? by option(help = "Target OS version.")
-
-    private val rawPackagePaths: List<File> by argument().file(
+    private val rawPackagePaths: List<File> by argument("PACKAGE_PATH").file(
         fileOkay = false, readable = true
     ).multiple().validate {
         require(it.isNotEmpty()) { "must provide at least one package" }
@@ -91,12 +108,28 @@ open class Cli : CliktCommand(help = "prefab") {
         packagePaths.map { Package(it.toPath()) }
     }
 
+    private fun makeAndroidRequirements(config: AndroidConfig):
+            Collection<Android> {
+        val abi = config.abi
+        val osVersion = config.osVersion
+        if (abi != null) {
+            return listOf(
+                Android(
+                    Android.Abi.fromString(abi),
+                    osVersion.toInt()
+                )
+            )
+        }
+
+        // If --abi wasn't provided, build for every ABI.
+        return Android.Abi.values().map { Android(it, osVersion.toInt()) }
+    }
+
     private val platformRequirements: Collection<PlatformDataInterface>
             by lazy {
-                PlatformRegistry.find(platform)!!.fromCommandLineArgs(
-                    abi,
-                    osVersion
-                )
+                when (val it = platform) {
+                    is AndroidConfig -> makeAndroidRequirements(it)
+                }
             }
 
     /**

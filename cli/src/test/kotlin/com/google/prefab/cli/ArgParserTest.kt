@@ -141,6 +141,7 @@ class ArgParserTest {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",
+                    "--os-version", "21",
                     "--build-system", "ndk-build",
                     "--output", "out",
                     "foo"
@@ -155,6 +156,7 @@ class ArgParserTest {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",
+                    "--os-version", "21",
                     "--build-system", "ndk-build",
                     "--output", "out",
                     plug1.path
@@ -169,6 +171,7 @@ class ArgParserTest {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",
+                    "--os-version", "21",
                     "--build-system", "ndk-build",
                     "--output", "out"
                 )

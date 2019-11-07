@@ -114,23 +114,5 @@ class Android(val abi: Abi, api: Int) : PlatformDataInterface {
 
             return Android(Abi.fromString(metadata.abi), metadata.api)
         }
-
-        override fun fromCommandLineArgs(
-            abi: String?,
-            osVersion: String?
-        ): Collection<PlatformDataInterface> {
-            require(osVersion != null) {
-                throw IllegalArgumentException(
-                    "Android targets require an OS version"
-                )
-            }
-
-            return if (abi != null) {
-                listOf(Android(Abi.fromString(abi), osVersion.toInt()))
-            } else {
-                // If --abi wasn't provided, build for every ABI.
-                Abi.values().map { Android(it, osVersion.toInt()) }
-            }
-        }
     }
 }
