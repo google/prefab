@@ -74,7 +74,7 @@ class AndroidTest {
         every { cxxSharedStaticLib.platform } returns cxxShared
         every { cxxSharedStaticLib.path } returns Paths.get("libfoo.a")
 
-        // A static library using c++_shared.
+        // A shared library using c++_static.
         val cxxStaticSharedLib = mockk<PrebuiltLibrary>()
         every { cxxStaticSharedLib.platform } returns cxxStatic
         every { cxxStaticSharedLib.path } returns Paths.get("libfoo.so")
