@@ -104,4 +104,17 @@ class PackageTest {
             Package(packagePath)
         }
     }
+
+    @Test
+    fun `package with invalid package version is rejected`() {
+        assertFailsWith(IllegalArgumentException::class) {
+            val packagePath =
+                Paths.get(
+                    this.javaClass.getResource(
+                        "packages/bad_package_version"
+                    ).toURI()
+                )
+            Package(packagePath)
+        }
+    }
 }

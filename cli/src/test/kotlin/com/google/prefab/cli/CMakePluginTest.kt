@@ -81,11 +81,17 @@ class CMakePluginTest {
 
         val fooConfigFile =
             outputDirectory.resolve("${foo.name}-config.cmake").toFile()
+        val fooVersionFile =
+            outputDirectory.resolve("${foo.name}-config-version.cmake").toFile()
         assertTrue(fooConfigFile.exists())
+        assertTrue(fooVersionFile.exists())
 
         val quxConfigFile =
             outputDirectory.resolve("${qux.name}-config.cmake").toFile()
+        val quxVersionFile =
+            outputDirectory.resolve("${qux.name}-config-version.cmake").toFile()
         assertTrue(quxConfigFile.exists())
+        assertTrue(quxVersionFile.exists())
 
         val barDir = fooPath.resolve("modules/bar")
         val bazDir = fooPath.resolve("modules/baz")
@@ -113,6 +119,20 @@ class CMakePluginTest {
             """.trimIndent(), fooConfigFile.readText()
         )
 
+        assertEquals(
+            """
+            set(PACKAGE_VERSION 1)
+            if("${'$'}{PACKAGE_VERSION}" VERSION_LESS "${'$'}{PACKAGE_FIND_VERSION}")
+                set(PACKAGE_VERSION_COMPATIBLE FALSE)
+            else()
+                set(PACKAGE_VERSION_COMPATIBLE TRUE)
+                if("${'$'}{PACKAGE_VERSION}" VERSION_EQUAL "${'$'}{PACKAGE_FIND_VERSION}")
+                    set(PACKAGE_VERSION_EXACT TRUE)
+                endif()
+            endif()
+            """.trimIndent(), fooVersionFile.readText()
+        )
+
         val quxDir = quxPath.resolve("modules/libqux")
         assertEquals(
             """
@@ -128,6 +148,20 @@ class CMakePluginTest {
 
             """.trimIndent(), quxConfigFile.readText()
         )
+
+        assertEquals(
+            """
+            set(PACKAGE_VERSION 1.2.1.4)
+            if("${'$'}{PACKAGE_VERSION}" VERSION_LESS "${'$'}{PACKAGE_FIND_VERSION}")
+                set(PACKAGE_VERSION_COMPATIBLE FALSE)
+            else()
+                set(PACKAGE_VERSION_COMPATIBLE TRUE)
+                if("${'$'}{PACKAGE_VERSION}" VERSION_EQUAL "${'$'}{PACKAGE_FIND_VERSION}")
+                    set(PACKAGE_VERSION_EXACT TRUE)
+                endif()
+            endif()
+            """.trimIndent(), quxVersionFile.readText()
+        )
     }
 
     @Test
@@ -141,7 +175,10 @@ class CMakePluginTest {
 
         val name = pkg.name
         val configFile = outputDirectory.resolve("$name-config.cmake").toFile()
+        val versionFile =
+            outputDirectory.resolve("$name-config-version.cmake").toFile()
         assertTrue(configFile.exists())
+        assertTrue(versionFile.exists())
 
         val fooDir = packagePath.resolve("modules/foo")
         val barDir = packagePath.resolve("modules/bar")
@@ -163,6 +200,20 @@ class CMakePluginTest {
 
             """.trimIndent(), configFile.readText()
         )
+
+        assertEquals(
+            """
+            set(PACKAGE_VERSION 2.2)
+            if("${'$'}{PACKAGE_VERSION}" VERSION_LESS "${'$'}{PACKAGE_FIND_VERSION}")
+                set(PACKAGE_VERSION_COMPATIBLE FALSE)
+            else()
+                set(PACKAGE_VERSION_COMPATIBLE TRUE)
+                if("${'$'}{PACKAGE_VERSION}" VERSION_EQUAL "${'$'}{PACKAGE_FIND_VERSION}")
+                    set(PACKAGE_VERSION_EXACT TRUE)
+                endif()
+            endif()
+            """.trimIndent(), versionFile.readText()
+        )
     }
 
     @Test
@@ -177,7 +228,12 @@ class CMakePluginTest {
 
         val name = pkg.name
         val configFile = outputDirectory.resolve("$name-config.cmake").toFile()
+        val versionFile =
+            outputDirectory.resolve("$name-config-version.cmake").toFile()
         assertTrue(configFile.exists())
+        // No version is provided for this package, so we shouldn't provide a
+        // version file.
+        assertFalse(versionFile.exists())
 
         val modDir = path.resolve("modules/perplatform")
         assertEquals(

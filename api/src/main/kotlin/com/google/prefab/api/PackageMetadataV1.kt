@@ -25,11 +25,15 @@ import kotlinx.serialization.Serializable
  * @property[name] The name of the module.
  * @property[schemaVersion] The version of the schema. Must be 1.
  * @property[dependencies] A list of other packages required by this package.
+ * @property[version] The package version. For compatibility with CMake, this
+ * *must* be formatted as major[.minor[.patch[.tweak]]] with all components
+ * being numeric, even if that does not match the package's native version.
  */
 @Serializable
 data class PackageMetadataV1(
     val name: String,
     @SerialName("schema_version")
     val schemaVersion: Int,
-    val dependencies: List<String>
+    val dependencies: List<String>,
+    val version: String? = null
 )

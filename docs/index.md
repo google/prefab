@@ -128,6 +128,7 @@ and any inter-package dependencies the package may have.
 {
     "schema_version": 1,
     "name": "<package name>",
+    "version": "<package version>",
     "dependencies": [
         "<dependency name>",
         ...
@@ -142,6 +143,15 @@ will continue to be supported when new schema versions are introduced.
 
 `name` identifies the Package and should match the name of the containing
 directory.
+
+`version` contains the version number for the contained software. This field is
+optional. If absent, users will not be able to query the package version in
+their build scripts.
+
+Note that for compatibility with CMake, versions must be specified as
+`major[.minor[.patch[.tweak]]]` with all components being numeric, even if that
+format does not match the native version of the software. For example, OpenSSL
+version 1.1.1a should be written as 1.1.1.1.
 
 `dependencies` is a list of strings naming other Packages (as specified by each
 Package's `name`) that this Package depends on. All dependent packages must be
