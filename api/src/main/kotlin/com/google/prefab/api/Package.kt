@@ -19,8 +19,16 @@ package com.google.prefab.api
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.parse
 import java.io.File
-import java.lang.RuntimeException
 import java.nio.file.Path
+
+/**
+ * Checks if a version string is in the right format for CMake.
+ *
+ * @param[version] The version string.
+ * @return True if the version string is compatible.
+ */
+internal fun isValidVersionForCMake(version: String): Boolean =
+    Regex("""^\d+(\.\d+(\.\d+(\.\d+)?)?)?$""").matches(version)
 
 /**
  * A Prefab package.
@@ -57,12 +65,17 @@ class Package(val path: Path) {
     /**
      * The name of the package.
      */
-    val name: String
-        get() = metadata.name
+    val name: String = metadata.name
 
     /**
      * The list of other packages this package requires.
      */
-    val dependencies: List<String>
-        get() = metadata.dependencies
+    val dependencies: List<String> = metadata.dependencies
+
+    /**
+     * The version of the package
+     */
+    val version: String? = metadata.version.also {
+        require(it == null || isValidVersionForCMake(it))
+    }
 }

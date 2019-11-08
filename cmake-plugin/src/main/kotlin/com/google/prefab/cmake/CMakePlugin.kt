@@ -65,17 +65,23 @@ class CMakePlugin(
             emitModule(pkg, module, requirements, configFile)
         }
 
-        // TODO: Is the version file required?
-        // If so, we need to extend the package.json.
-        // https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#package-version-file
+
+        if (pkg.version != null) {
+            emitVersionFile(
+                pkg,
+                outputDirectory.resolve("${pkg.name}-config-version.cmake")
+            )
+        }
     }
 
     private fun emitDependency(dep: String, configFile: File) {
-        configFile.appendText("""
+        configFile.appendText(
+            """
             find_package($dep REQUIRED)
 
 
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     private fun emitModule(
@@ -138,6 +144,25 @@ class CMakePlugin(
                 """.trimIndent()
             )
         }
+    }
+
+    private fun emitVersionFile(pkg: Package, versionFile: File) {
+        // https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#package-version-file
+        // Based on example from
+        // https://gitlab.kitware.com/cmake/community/wikis/doc/tutorials/How-to-create-a-ProjectConfig.cmake-file
+        versionFile.writeText(
+            """
+            set(PACKAGE_VERSION ${pkg.version})
+            if("${'$'}{PACKAGE_VERSION}" VERSION_LESS "${'$'}{PACKAGE_FIND_VERSION}")
+                set(PACKAGE_VERSION_COMPATIBLE FALSE)
+            else()
+                set(PACKAGE_VERSION_COMPATIBLE TRUE)
+                if("${'$'}{PACKAGE_VERSION}" VERSION_EQUAL "${'$'}{PACKAGE_FIND_VERSION}")
+                    set(PACKAGE_VERSION_EXACT TRUE)
+                endif()
+            endif()
+            """.trimIndent()
+        )
     }
 
     /**
