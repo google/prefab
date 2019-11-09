@@ -20,7 +20,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
-import com.github.ajalt.clikt.parameters.arguments.validate
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.groups.required
@@ -80,13 +79,21 @@ class AndroidConfig :
         "stlport_static",
         "system"
     ).required()
+
+    /**
+     * NDK version used by the application.
+     */
+    val ndkVersion: Int by option(
+        help = "Major version of the NDK used by the application."
+    ).int().required()
 }
 
 // Open for testing.
 /**
  * The command line interface for Prefab.
  */
-open class Cli : CliktCommand(help = "prefab") {
+open class Cli :
+    CliktCommand(name = "prefab", help = "https://google.github.io/prefab/") {
     private val buildSystem: String by option(
         help = "Generate integration for the given build system."
     ).required()
@@ -107,9 +114,7 @@ open class Cli : CliktCommand(help = "prefab") {
 
     private val rawPackagePaths: List<File> by argument("PACKAGE_PATH").file(
         fileOkay = false, readable = true
-    ).multiple().validate {
-        require(it.isNotEmpty()) { "must provide at least one package" }
-    }
+    ).multiple(required = true)
 
     /**
      * De-duplicated packages paths.
