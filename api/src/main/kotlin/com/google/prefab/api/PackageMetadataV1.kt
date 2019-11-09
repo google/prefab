@@ -20,7 +20,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * The v1 package.json schema.
+ * The v1 prefab.json schema.
  *
  * @property[name] The name of the module.
  * @property[schemaVersion] The version of the schema. Must be 1.
