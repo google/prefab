@@ -29,8 +29,8 @@ import kotlin.test.assertTrue
 class AndroidTest {
     @Test
     fun `ABIs must match`() {
-        val arm32 = Android(Android.Abi.Arm32, 21, Android.Stl.CxxShared)
-        val arm64 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared)
+        val arm32 = Android(Android.Abi.Arm32, 21, Android.Stl.CxxShared, 21)
+        val arm64 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
         val arm32Lib = mockk<PrebuiltLibrary>()
         val arm64Lib = mockk<PrebuiltLibrary>()
         every { arm32Lib.platform } returns arm32
@@ -44,8 +44,8 @@ class AndroidTest {
 
     @Test
     fun `OS version constraint only allows equal or older dependencies`() {
-        val old = Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared)
-        val new = Android(Android.Abi.Arm32, 21, Android.Stl.CxxShared)
+        val old = Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared, 21)
+        val new = Android(Android.Abi.Arm32, 21, Android.Stl.CxxShared, 21)
         val oldLib = mockk<PrebuiltLibrary>()
         val newLib = mockk<PrebuiltLibrary>()
         every { oldLib.platform } returns old
@@ -58,11 +58,14 @@ class AndroidTest {
 
     @Test
     fun `STL matching constraints are enforced`() {
-        val cxxShared = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared)
-        val cxxStatic = Android(Android.Abi.Arm64, 21, Android.Stl.CxxStatic)
-        val gnuShared = Android(Android.Abi.Arm64, 21, Android.Stl.GnustlShared)
-        val none = Android(Android.Abi.Arm64, 21, Android.Stl.None)
-        val system = Android(Android.Abi.Arm64, 21, Android.Stl.System)
+        val cxxShared =
+            Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
+        val cxxStatic =
+            Android(Android.Abi.Arm64, 21, Android.Stl.CxxStatic, 21)
+        val gnuShared =
+            Android(Android.Abi.Arm64, 21, Android.Stl.GnustlShared, 21)
+        val none = Android(Android.Abi.Arm64, 21, Android.Stl.None, 21)
+        val system = Android(Android.Abi.Arm64, 21, Android.Stl.System, 21)
 
         // A shared library using c++_shared.
         val cxxSharedSharedLib = mockk<PrebuiltLibrary>()
@@ -152,11 +155,11 @@ class AndroidTest {
     fun `OS version pulled up to 21 for LP64`() {
         assertEquals(
             16,
-            Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared).api
+            Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared, 21).api
         )
         assertEquals(
             21,
-            Android(Android.Abi.Arm64, 16, Android.Stl.CxxShared).api
+            Android(Android.Abi.Arm64, 16, Android.Stl.CxxShared, 21).api
         )
     }
 }

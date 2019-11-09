@@ -16,6 +16,7 @@
 
 package com.google.prefab.cmake
 
+import com.google.prefab.api.Android
 import com.google.prefab.api.BuildSystemFactory
 import com.google.prefab.api.BuildSystemInterface
 import com.google.prefab.api.LibraryReference
@@ -48,15 +49,24 @@ class CMakePlugin(
         pkg: Package,
         requirements: PlatformDataInterface
     ) {
+        // Until r19 the NDK CMake toolchain file did not properly set
+        // CMAKE_LIBRARY_ARCHITECTURE, so we can't use the architecture-specific
+        // layout unless targeting at least r19.
+        val useArchSpecificLayout =
+            requirements !is Android || requirements.ndkMajorVersion >= 19
+
         // https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
-        //
-        // The share/$name directory is probably the best fit, but that doesn't
-        // appear to work with CMake 3.6, which the NDK still supports.
-        //
-        // TODO: Use the arch-specific directory?
-        // Doing so would allow a single output directory to be used for all
-        // ABIs.
-        val configFile = outputDirectory.resolve("${pkg.name}-config.cmake")
+        // We could also include a version number suffix on the package name
+        // part of the directory, but since we don't support duplicate package
+        // names in the same run there's currently no chance of a conflict.
+        val pkgDirectory = if (useArchSpecificLayout) {
+            outputDirectory.resolve(
+                "lib/${requirements.targetTriple}/cmake/${pkg.name}"
+            ).apply { mkdirs() }
+        } else {
+            outputDirectory
+        }
+        val configFile = pkgDirectory.resolve("${pkg.name}-config.cmake")
         for (dep in pkg.dependencies.sorted()) {
             emitDependency(dep, configFile)
         }
@@ -69,7 +79,7 @@ class CMakePlugin(
         if (pkg.version != null) {
             emitVersionFile(
                 pkg,
-                outputDirectory.resolve("${pkg.name}-config-version.cmake")
+                pkgDirectory.resolve("${pkg.name}-config-version.cmake")
             )
         }
     }

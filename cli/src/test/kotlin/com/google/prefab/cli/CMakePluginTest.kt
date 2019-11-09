@@ -48,8 +48,8 @@ class CMakePluginTest {
     @Test
     fun `multi-target generations are rejected`() {
         val generator = CMakePlugin(staleOutputDir.toFile(), emptyList())
-        val requirements =
-            Android.Abi.values().map { Android(it, 21, Android.Stl.CxxShared) }
+        val requirements = Android.Abi.values()
+            .map { Android(it, 21, Android.Stl.CxxShared, 21) }
         assertTrue(requirements.size > 1)
         assertThrows<UnsupportedOperationException> {
             generator.generate(requirements)
@@ -60,7 +60,7 @@ class CMakePluginTest {
     fun `stale files are removed from extant output directory`() {
         assertTrue(staleFile.toFile().exists())
         CMakePlugin(staleOutputDir.toFile(), emptyList()).generate(
-            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21))
         )
         assertFalse(staleFile.toFile().exists())
     }
@@ -76,20 +76,23 @@ class CMakePluginTest {
         val qux = Package(quxPath)
 
         CMakePlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
-            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared, 21))
         )
 
+        val archDir = outputDirectory.resolve("lib/aarch64-linux-android/cmake")
         val fooConfigFile =
-            outputDirectory.resolve("${foo.name}-config.cmake").toFile()
-        val fooVersionFile =
-            outputDirectory.resolve("${foo.name}-config-version.cmake").toFile()
+            archDir.resolve("${foo.name}/${foo.name}-config.cmake").toFile()
+        val fooVersionFile = archDir.resolve(
+            "${foo.name}/${foo.name}-config-version.cmake"
+        ).toFile()
         assertTrue(fooConfigFile.exists())
         assertTrue(fooVersionFile.exists())
 
         val quxConfigFile =
-            outputDirectory.resolve("${qux.name}-config.cmake").toFile()
-        val quxVersionFile =
-            outputDirectory.resolve("${qux.name}-config-version.cmake").toFile()
+            archDir.resolve("${qux.name}/${qux.name}-config.cmake").toFile()
+        val quxVersionFile = archDir.resolve(
+            "${qux.name}/${qux.name}-config-version.cmake"
+        ).toFile()
         assertTrue(quxConfigFile.exists())
         assertTrue(quxVersionFile.exists())
 
@@ -170,13 +173,14 @@ class CMakePluginTest {
             Paths.get(this.javaClass.getResource("packages/header_only").toURI())
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
-            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21))
         )
 
         val name = pkg.name
-        val configFile = outputDirectory.resolve("$name-config.cmake").toFile()
+        val archDir = outputDirectory.resolve("lib/aarch64-linux-android/cmake")
+        val configFile = archDir.resolve("$name/$name-config.cmake").toFile()
         val versionFile =
-            outputDirectory.resolve("$name-config-version.cmake").toFile()
+            archDir.resolve("$name/$name-config-version.cmake").toFile()
         assertTrue(configFile.exists())
         assertTrue(versionFile.exists())
 
@@ -223,13 +227,14 @@ class CMakePluginTest {
         )
         val pkg = Package(path)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
-            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 19))
         )
 
         val name = pkg.name
-        val configFile = outputDirectory.resolve("$name-config.cmake").toFile()
+        var archDir = outputDirectory.resolve("lib/aarch64-linux-android/cmake")
+        var configFile = archDir.resolve("$name/$name-config.cmake").toFile()
         val versionFile =
-            outputDirectory.resolve("$name-config-version.cmake").toFile()
+            archDir.resolve("$name/$name-config-version.cmake").toFile()
         assertTrue(configFile.exists())
         // No version is provided for this package, so we shouldn't provide a
         // version file.
@@ -253,8 +258,12 @@ class CMakePluginTest {
         // Verify that the module level headers are used for platforms that
         // don't.
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
-            listOf(Android(Android.Abi.X86_64, 21, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.X86_64, 21, Android.Stl.CxxShared, 19))
         )
+
+        archDir = outputDirectory.resolve("lib/x86_64-linux-android/cmake")
+        configFile = archDir.resolve("$name/$name-config.cmake").toFile()
+
         assertEquals(
             """
             add_library(per_platform_includes::perplatform SHARED IMPORTED)
@@ -266,6 +275,58 @@ class CMakePluginTest {
 
 
             """.trimIndent(), configFile.readText()
+        )
+    }
+
+    @Test
+    fun `old NDKs use non-arch specific layout`() {
+        val packagePath =
+            Paths.get(this.javaClass.getResource("packages/header_only").toURI())
+        val pkg = Package(packagePath)
+        CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
+        )
+
+        val name = pkg.name
+        val configFile = outputDirectory.resolve("$name-config.cmake").toFile()
+        val versionFile =
+            outputDirectory.resolve("$name-config-version.cmake").toFile()
+        assertTrue(configFile.exists())
+        assertTrue(versionFile.exists())
+
+        val fooDir = packagePath.resolve("modules/foo")
+        val barDir = packagePath.resolve("modules/bar")
+        assertEquals(
+            """
+            add_library(header_only::bar SHARED IMPORTED)
+            set_target_properties(header_only::bar PROPERTIES
+                IMPORTED_LOCATION "$barDir/libs/android.arm64-v8a/libbar.so"
+                INTERFACE_INCLUDE_DIRECTORIES "$barDir/include"
+                INTERFACE_LINK_LIBRARIES "header_only::foo"
+            )
+
+            add_library(header_only::foo INTERFACE)
+            set_target_properties(header_only::foo PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "$fooDir/include"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+
+
+            """.trimIndent(), configFile.readText()
+        )
+
+        assertEquals(
+            """
+            set(PACKAGE_VERSION 2.2)
+            if("${'$'}{PACKAGE_VERSION}" VERSION_LESS "${'$'}{PACKAGE_FIND_VERSION}")
+                set(PACKAGE_VERSION_COMPATIBLE FALSE)
+            else()
+                set(PACKAGE_VERSION_COMPATIBLE TRUE)
+                if("${'$'}{PACKAGE_VERSION}" VERSION_EQUAL "${'$'}{PACKAGE_FIND_VERSION}")
+                    set(PACKAGE_VERSION_EXACT TRUE)
+                endif()
+            endif()
+            """.trimIndent(), versionFile.readText()
         )
     }
 }

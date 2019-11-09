@@ -49,7 +49,7 @@ class NdkBuildPluginTest {
     fun `stale files are removed from extant output directory`() {
         assertTrue(staleFile.toFile().exists())
         NdkBuildPlugin(staleOutputDir.toFile(), emptyList()).generate(
-            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21))
         )
         assertFalse(staleFile.toFile().exists())
     }
@@ -65,7 +65,14 @@ class NdkBuildPluginTest {
         val qux = Package(quxPath)
 
         NdkBuildPlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
-            Android.Abi.values().map { Android(it, 19, Android.Stl.CxxShared) }
+            Android.Abi.values().map {
+                Android(
+                    it,
+                    19,
+                    Android.Stl.CxxShared,
+                    21
+                )
+            }
         )
 
         val fooAndroidMk = outputDirectory.resolve("foo/Android.mk").toFile()
@@ -248,7 +255,7 @@ class NdkBuildPluginTest {
         val qux = Package(quxPath)
 
         NdkBuildPlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
-            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared, 21))
         )
 
         val fooAndroidMk = outputDirectory.resolve("foo/Android.mk").toFile()
@@ -339,7 +346,14 @@ class NdkBuildPluginTest {
                 outputDirectory.toFile(),
                 listOf(moduleA, moduleB)
             ).generate(
-                listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
+                listOf(
+                    Android(
+                        Android.Abi.Arm64,
+                        19,
+                        Android.Stl.CxxShared,
+                        21
+                    )
+                )
             )
         }
     }
@@ -350,7 +364,7 @@ class NdkBuildPluginTest {
             Paths.get(this.javaClass.getResource("packages/header_only").toURI())
         val pkg = Package(packagePath)
         NdkBuildPlugin(outputDirectory.toFile(), listOf(pkg)).generate(
-            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared))
+            listOf(Android(Android.Abi.Arm64, 19, Android.Stl.CxxShared, 21))
         )
 
         val androidMk =
@@ -397,7 +411,14 @@ class NdkBuildPluginTest {
         val pkg = Package(path)
 
         NdkBuildPlugin(outputDirectory.toFile(), listOf(pkg)).generate(
-            Android.Abi.values().map { Android(it, 19, Android.Stl.CxxShared) }
+            Android.Abi.values().map {
+                Android(
+                    it,
+                    19,
+                    Android.Stl.CxxShared,
+                    21
+                )
+            }
         )
 
         val androidMk =

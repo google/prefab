@@ -28,6 +28,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.int
 import com.google.prefab.api.Android
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
@@ -133,14 +134,21 @@ open class Cli :
         val abi = config.abi
         val osVersion = config.osVersion
         val stl = Android.Stl.fromString(config.stl)
+        val ndkVersion = config.ndkVersion
         if (abi != null) {
             return listOf(
-                Android(Android.Abi.fromString(abi), osVersion.toInt(), stl)
+                Android(
+                    Android.Abi.fromString(abi),
+                    osVersion.toInt(),
+                    stl,
+                    ndkVersion
+                )
             )
         }
 
         // If --abi wasn't provided, build for every ABI.
-        return Android.Abi.values().map { Android(it, osVersion.toInt(), stl) }
+        return Android.Abi.values()
+            .map { Android(it, osVersion.toInt(), stl, ndkVersion) }
     }
 
     private val platformRequirements: Collection<PlatformDataInterface>

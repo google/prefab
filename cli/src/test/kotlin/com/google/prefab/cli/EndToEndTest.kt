@@ -43,6 +43,7 @@ class EndToEndTest {
                     "--abi", "arm64-v8a",
                     "--os-version", "21",
                     "--stl", "c++_shared",
+                    "--ndk-version", "21",
                     "--build-system", "ndk-build",
                     "--output", outputDirectory.toString(),
                     packagePath.toString()

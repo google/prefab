@@ -27,9 +27,14 @@ import kotlin.math.max
  * @property[abi] The ABI targeted by this build.
  * @property[api] The Android minSdkVersion targeted by this build.
  * @property[stl] The Android STL targeted by this build.
+ * @property[ndkMajorVersion] The major version of the Android NDK targeted by
+ * this build.
  * @constructor Creates an Android requirements object.
  */
-class Android(val abi: Abi, api: Int, val stl: Stl) : PlatformDataInterface {
+class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
+    PlatformDataInterface {
+    override val targetTriple: String = abi.triple
+
     val api: Int = when (abi) {
         Abi.Arm32, Abi.X86 -> api
         Abi.Arm64, Abi.X86_64 -> max(api, 21)
@@ -42,29 +47,33 @@ class Android(val abi: Abi, api: Int, val stl: Stl) : PlatformDataInterface {
      *
      * See https://developer.android.com/ndk/guides/abis for more information.
      *
-     * @param[targetArchAbi] The Android ABI name for this ABI. This matches the
-     * `APP_ABI` ndk-build variable or `ANDROID_ABI` CMake toolchain variable.
+     * @property[targetArchAbi] The Android ABI name for this ABI. This matches
+     * the `APP_ABI` ndk-build variable or `ANDROID_ABI` CMake toolchain
+     * variable.
+     * @property[triple] The target triple associated with this ABI. Note that
+     * this is the library architecture rather than the exact target, so 32-bit
+     * Arm is arm-linux-androideabi rather than armv7a-linux-androideabi.
      */
-    enum class Abi(val targetArchAbi: String) {
+    enum class Abi(val targetArchAbi: String, val triple: String) {
         /**
          * 32-bit Arm.
          */
-        Arm32("armeabi-v7a"),
+        Arm32("armeabi-v7a", "arm-linux-androideabi"),
 
         /**
          * 64-bit Arm.
          */
-        Arm64("arm64-v8a"),
+        Arm64("arm64-v8a", "aarch64-linux-android"),
 
         /**
          * 32-bit x86.
          */
-        X86("x86"),
+        X86("x86", "i686-linux-android"),
 
         /**
          * 64-bit x86.
          */
-        X86_64("x86_64");
+        X86_64("x86_64", "x86_64-linux-android");
 
         companion object {
             /**
@@ -275,7 +284,8 @@ class Android(val abi: Abi, api: Int, val stl: Stl) : PlatformDataInterface {
             return Android(
                 Abi.fromString(metadata.abi),
                 metadata.api,
-                Stl.fromString(metadata.stl)
+                Stl.fromString(metadata.stl),
+                metadata.ndk
             )
         }
     }

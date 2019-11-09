@@ -24,6 +24,15 @@ import java.nio.file.Path
  */
 interface PlatformDataInterface {
     /**
+     * The target triple used for this platform.
+     *
+     * This is used to determine the architecture-specific directory for
+     * installing CMake build scripts, so it must match the platform's
+     * [CMAKE_LIBRARY_ARCHITECTURE](https://cmake.org/cmake/help/latest/variable/CMAKE_LIBRARY_ARCHITECTURE.html).
+     */
+    val targetTriple: String
+
+    /**
      * Determines if the given [library] can be used with this platform.
      *
      * This [PlatformDataInterface] object defines the platform requirements
