@@ -37,10 +37,10 @@ internal fun isValidVersionForCMake(version: String): Boolean =
  */
 class Package(val path: Path) {
     /**
-     * The metadata object loaded from the package.json.
+     * The metadata object loaded from the prefab.json.
      */
     private val metadata: PackageMetadataV1 = Json.parse<PackageMetadataV1>(
-        path.resolve("package.json").toFile().readText()
+        path.resolve("prefab.json").toFile().readText()
     ).also {
         require(it.schemaVersion == 1) {
             "Only schema_version 1 is supported. ${it.name} uses version " +

@@ -76,7 +76,7 @@ A Package has the following directory layout:
 
 ```text
 <package name>/
-    package.json
+    prefab.json
     modules/
         <module name>/
             module.json
@@ -89,7 +89,7 @@ A Package has the following directory layout:
         ...
 ```
 
-package.json is the [package level metadata](#package-metadata) and module.json
+prefab.json is the [package level metadata](#package-metadata) and module.json
 is the [module level metadata](#module-metadata). These are required.
 
 The per-module include directory is optional. If present, the directory will be
