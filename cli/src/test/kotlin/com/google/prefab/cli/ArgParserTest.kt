@@ -169,7 +169,7 @@ class ArgParserTest {
 
     @Test
     fun `fails if no packages are provided`() {
-        assertFailsWith(BadParameterValue::class) {
+        assertFailsWith(MissingParameter::class) {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",

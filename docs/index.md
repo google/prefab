@@ -37,7 +37,7 @@ TODO: Improve usage message.
 ```text
 Usage: prefab [OPTIONS] PACKAGE_PATH...
 
-  prefab
+  https://google.github.io/prefab/
 
 Android specific configuration options:
   --abi TEXT                       Target ABI.
