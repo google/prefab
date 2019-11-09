@@ -31,7 +31,7 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ModuleTest {
     private val android: PlatformDataInterface =
-        Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared)
+        Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
 
     @Test
     fun `can load basic module`() {

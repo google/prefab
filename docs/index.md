@@ -44,6 +44,8 @@ Android specific configuration options:
   --os-version TEXT                Target OS version.
   --stl [c++_shared|c++_static|gnustl_shared|gnustl_static|none|stlport_shared|stlport_static|system]
                                    STL used by the application.
+  --ndk-version INT                Major version of the NDK used by the
+                                   application.
 
 Options:
   --build-system TEXT  Generate integration for the given build system.
