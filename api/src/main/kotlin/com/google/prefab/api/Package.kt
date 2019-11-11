@@ -49,20 +49,6 @@ class Package(val path: Path) {
     }
 
     /**
-     * The path to the package's module directory.
-     */
-    private val moduleDir: File = path.resolve("modules").toFile()
-
-    /**
-     * The list of modules in this package.
-     */
-    val modules: List<Module> =
-        moduleDir.listFiles()?.map { Module(it.toPath(), this) }
-            ?: throw RuntimeException(
-                "Unable to retrieve file list for $moduleDir"
-            )
-
-    /**
      * The name of the package.
      */
     val name: String = metadata.name
@@ -78,4 +64,18 @@ class Package(val path: Path) {
     val version: String? = metadata.version.also {
         require(it == null || isValidVersionForCMake(it))
     }
+
+    /**
+     * The path to the package's module directory.
+     */
+    private val moduleDir: File = path.resolve("modules").toFile()
+
+    /**
+     * The list of modules in this package.
+     */
+    val modules: List<Module> =
+        moduleDir.listFiles()?.map { Module(it.toPath(), this) }
+            ?: throw RuntimeException(
+                "Unable to retrieve file list for $moduleDir"
+            )
 }
