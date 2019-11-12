@@ -46,6 +46,18 @@ interface PlatformDataInterface {
     fun canUse(library: PrebuiltLibrary): Boolean
 
     /**
+     * Finds the best fit library for these platform requirements.
+     *
+     * @param[libraries] A non-empty list of compatible libraries.
+     * @throws[IllegalArgumentException] The given list of [libraries] was
+     * either empty or incompatible with this platform.
+     * @throws[RuntimeException] 
+     * @return The [PrebuiltLibrary] from the set of [libraries] that is the
+     * best fit for these platform requirements.
+     */
+    fun findBestMatch(libraries: List<PrebuiltLibrary>): PrebuiltLibrary
+
+    /**
      * Returns the library file found in the given directory.
      *
      * @param[directory] The path to the library directory.

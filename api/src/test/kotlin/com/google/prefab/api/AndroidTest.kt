@@ -19,6 +19,7 @@ package com.google.prefab.api
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -149,6 +150,105 @@ class AndroidTest {
         assertFalse(system.canUse(gnuSharedStaticLib))
         assertTrue(system.canUse(noneLib))
         assertTrue(system.canUse(systemLib))
+    }
+
+    @Test
+    fun `best match for API level is found`() {
+        val lollipop = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
+        val marshmallow = Android(Android.Abi.Arm64, 23, Android.Stl.CxxShared, 21)
+        val nougat = Android(Android.Abi.Arm64, 24, Android.Stl.CxxShared, 21)
+        val pie = Android(Android.Abi.Arm64, 28, Android.Stl.CxxShared, 21)
+        val arm32 = Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared, 21)
+
+        val module = mockk<Module>()
+        every { module.canonicalName } returns "//foo/bar"
+
+        val lollipopLib = mockk<PrebuiltLibrary>()
+        every { lollipopLib.platform } returns lollipop
+        every { lollipopLib.path } returns Paths.get("libfoo.so")
+        every { lollipopLib.module } returns module
+
+        val marshmallowLib = mockk<PrebuiltLibrary>()
+        every { marshmallowLib.platform } returns marshmallow
+        every { marshmallowLib.path } returns Paths.get("libfoo.so")
+        every { marshmallowLib.module } returns module
+
+        val pieLib = mockk<PrebuiltLibrary>()
+        every { pieLib.platform } returns pie
+        every { pieLib.path } returns Paths.get("libfoo.so")
+        every { pieLib.module } returns module
+
+        assertEquals(lollipopLib, lollipop.findBestMatch(listOf(lollipopLib)))
+        assertEquals(
+            marshmallowLib,
+            marshmallow.findBestMatch(listOf(lollipopLib, marshmallowLib))
+        )
+        assertEquals(
+            marshmallowLib,
+            nougat.findBestMatch(listOf(lollipopLib, marshmallowLib))
+        )
+        assertEquals(
+            pieLib,
+            pie.findBestMatch(listOf(marshmallowLib, lollipopLib, pieLib))
+        )
+
+        assertThrows<IllegalArgumentException> {
+            lollipop.findBestMatch(emptyList())
+        }
+
+        assertThrows<IllegalArgumentException> {
+            arm32.findBestMatch(listOf(marshmallowLib))
+        }
+    }
+
+    @Test
+    fun `best match for NDK version is found`() {
+        val r18 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18)
+        val r19 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 19)
+        val r20 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 20)
+        val r21 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
+        val r22 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 22)
+        val arm32 = Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared, 21)
+
+        val module = mockk<Module>()
+        every { module.canonicalName } returns "//foo/bar"
+
+        val r19Lib = mockk<PrebuiltLibrary>()
+        every { r19Lib.platform } returns r19
+        every { r19Lib.path } returns Paths.get("libfoo.so")
+        every { r19Lib.module } returns module
+
+        val r20Lib = mockk<PrebuiltLibrary>()
+        every { r20Lib.platform } returns r20
+        every { r20Lib.path } returns Paths.get("libfoo.so")
+        every { r20Lib.module } returns module
+
+        val r21Lib = mockk<PrebuiltLibrary>()
+        every { r21Lib.platform } returns r21
+        every { r21Lib.path } returns Paths.get("libfoo.so")
+        every { r21Lib.module } returns module
+
+        assertEquals(r19Lib, r18.findBestMatch(listOf(r19Lib, r20Lib, r21Lib)))
+        assertEquals(r19Lib, r19.findBestMatch(listOf(r19Lib, r20Lib, r21Lib)))
+        assertEquals(r20Lib, r20.findBestMatch(listOf(r19Lib, r20Lib, r21Lib)))
+        assertEquals(r21Lib, r21.findBestMatch(listOf(r19Lib, r20Lib, r21Lib)))
+        assertEquals(r21Lib, r22.findBestMatch(listOf(r19Lib, r20Lib, r21Lib)))
+
+        assertThrows<IllegalArgumentException> {
+            r19.findBestMatch(emptyList())
+        }
+
+        assertThrows<IllegalArgumentException> {
+            arm32.findBestMatch(listOf(r19Lib))
+        }
+
+        assertThrows<RuntimeException> {
+            r19.findBestMatch((listOf(r19Lib, r19Lib)))
+        }
+
+        assertThrows<RuntimeException> {
+            r20.findBestMatch((listOf(r19Lib, r21Lib)))
+        }
     }
 
     @Test

@@ -263,6 +263,80 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         return true
     }
 
+    override fun findBestMatch(
+        libraries: List<PrebuiltLibrary>
+    ): PrebuiltLibrary {
+        require(libraries.isNotEmpty())
+        require(libraries.all { canUse(it) })
+        val moduleName = libraries.first().module.canonicalName
+
+        val allLibraries: List<Pair<PrebuiltLibrary, Android>> = libraries.map {
+            require(it.platform is Android)
+            Pair(it, it.platform)
+        }
+
+        // Filter out any libraries that were built with a lower API level.
+        // Libraries built for newer API levels may expose additional features
+        // the rely on system APIs not available in earlier API levels, and may
+        // be smaller since libandroid_support is only required on very old API
+        // levels.
+        val bestApiLevel = allLibraries.maxBy { it.second.api }!!.second.api
+        val bestApiLevelMatches = allLibraries.filter { (_, reqs) ->
+            reqs.api == bestApiLevel
+        }
+
+        if (bestApiLevelMatches.size == 1) {
+            // If a single match was found, return it as a valid match even if
+            // it is not a matching NDK version. This is probably the common
+            // case.
+            return bestApiLevelMatches.single().first
+        }
+
+        // If we still have multiple matches, perform NDK version matching.
+        // If the user's NDK version is outside the span supported by the
+        // module, clamp it to the supported range. Return an exact match for
+        // the clamped version.
+        assert(bestApiLevelMatches.isNotEmpty())
+        val minNdkVersion = bestApiLevelMatches.minBy {
+            it.second.ndkMajorVersion
+        }!!.second.ndkMajorVersion
+        val maxNdkVersion = bestApiLevelMatches.maxBy {
+            it.second.ndkMajorVersion
+        }!!.second.ndkMajorVersion
+        val clamped =
+            ndkMajorVersion.coerceIn(minNdkVersion, maxNdkVersion)
+        val ndkVersionMatches = bestApiLevelMatches.filter { (_, reqs) ->
+            reqs.ndkMajorVersion == clamped
+        }
+
+        // Catch any gaps in NDK versions supported by the library.
+        if (ndkVersionMatches.isEmpty()) {
+            throw RuntimeException(
+                "$moduleName contains a library per NDK version but no match " +
+                        "was found for $ndkMajorVersion")
+        }
+
+        if (ndkVersionMatches.size == 1) {
+            return ndkVersionMatches.single().first
+        }
+
+        // TODO: Add load-time validation for modules.
+        // Only reporting these errors when a user encounters them makes it
+        // easier to ship these issues. If the module is rejected immediately
+        // the author will be able to stop the issue before they ship it.
+        //
+        // There may be cases where the library author has done something like
+        // have both a c++_static and c++_shared variant of a static library.
+        // There's no need to have both in this case.
+        throw RuntimeException(
+            "Unable to resolve a single library match for $moduleName. The " +
+                    "following libraries are redundant:\n" +
+                    ndkVersionMatches.joinToString(separator = "\n") {
+                        it.first.directory.toString()
+                    }
+        )
+    }
+
     override fun libraryFileFromDirectory(
         directory: Path,
         module: Module
