@@ -76,4 +76,71 @@ class ModuleTest {
 
         assertEquals(4, module.libraries.size)
     }
+
+    @Test
+    fun `best available match is found`() {
+        val pkg = mockk<Package>()
+        every { pkg.name } returns "find_best_match"
+
+        val byApi = Module(Paths.get(
+            this.javaClass.getResource(
+                "packages/find_best_match/modules/byapi"
+            ).toURI()
+        ), pkg)
+
+        val lollipop = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
+        val marshmallow =
+            Android(Android.Abi.Arm64, 23, Android.Stl.CxxShared, 21)
+        val nougat = Android(Android.Abi.Arm64, 24, Android.Stl.CxxShared, 21)
+        val oreo = Android(Android.Abi.Arm64, 26, Android.Stl.CxxShared, 21)
+        val pie = Android(Android.Abi.Arm64, 28, Android.Stl.CxxShared, 21)
+
+        assertEquals(null, byApi.getLibraryFor(lollipop))
+        assertEquals(
+            23,
+            (byApi.getLibraryFor(marshmallow)?.platform as Android?)?.api
+        )
+        assertEquals(
+            24,
+            (byApi.getLibraryFor(nougat)?.platform as Android?)?.api
+        )
+        assertEquals(
+            24,
+            (byApi.getLibraryFor(oreo)?.platform as Android?)?.api
+        )
+        assertEquals(28, (byApi.getLibraryFor(pie)?.platform as Android?)?.api)
+
+        val byNdk = Module(Paths.get(
+            this.javaClass.getResource(
+                "packages/find_best_match/modules/byndk"
+            ).toURI()
+        ), pkg)
+
+        val r18 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18)
+        val r19 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 19)
+        val r20 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 20)
+        val r21 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
+        val r22 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 22)
+
+        assertEquals(
+            19,
+            (byNdk.getLibraryFor(r18)?.platform as Android?)?.ndkMajorVersion
+        )
+        assertEquals(
+            19,
+            (byNdk.getLibraryFor(r19)?.platform as Android?)?.ndkMajorVersion
+        )
+        assertEquals(
+            20,
+            (byNdk.getLibraryFor(r20)?.platform as Android?)?.ndkMajorVersion
+        )
+        assertEquals(
+            21,
+            (byNdk.getLibraryFor(r21)?.platform as Android?)?.ndkMajorVersion
+        )
+        assertEquals(
+            21,
+            (byNdk.getLibraryFor(r22)?.platform as Android?)?.ndkMajorVersion
+        )
+    }
 }

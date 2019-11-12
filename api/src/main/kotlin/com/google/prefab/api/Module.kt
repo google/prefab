@@ -109,6 +109,19 @@ class Module(val path: Path, val pkg: Package) {
     val isHeaderOnly: Boolean = libraries.isEmpty()
 
     /**
+     * Finds all libraries that can be used with the given
+     * [platform requirements][PlatformDataInterface].
+     *
+     * @param[platformData] The build requirements to find a library for.
+     * @return All [prebuilt libraries][PrebuiltLibrary] matching the given
+     * requirements. May be empty.
+     */
+    private fun findCompatibleLibraries(
+        platformData: PlatformDataInterface
+    ): List<PrebuiltLibrary> =
+        libraries.filter { platformData.canUse(it) }
+
+    /**
      * Finds the library matching the given
      * [platform requirements][PlatformDataInterface].
      *
@@ -121,9 +134,11 @@ class Module(val path: Path, val pkg: Package) {
      * there is no match.
      */
     fun getLibraryFor(platformData: PlatformDataInterface): PrebuiltLibrary? {
-        // TODO: Find best fit.
-        // More than one library might satisfy the requirements.
-        return libraries.find { platformData.canUse(it) }
+        val allMatches = findCompatibleLibraries(platformData)
+        if (allMatches.isEmpty()) {
+            return null
+        }
+        return platformData.findBestMatch(allMatches)
     }
 
     /**
