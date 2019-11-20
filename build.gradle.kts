@@ -92,11 +92,6 @@ subprojects {
                                 distribution.set("repo")
                             }
                         }
-                        developers {
-                            developer {
-                                name.set("The Android Open Source Project")
-                            }
-                        }
                         scm {
                             connection.set(
                                 "scm:git:https://github.com/google/prefab.git"
