@@ -21,7 +21,7 @@ import java.io.File
 /**
  * The interface that Prefab uses to create build system plugins.
  */
-interface BuildSystemFactory {
+interface BuildSystemProvider {
     /**
      * An identifier matching the build system.
      *
@@ -48,7 +48,7 @@ interface BuildSystemFactory {
 /**
  * An interface to a build system generator.
  *
- * This, along with the associated [BuildSystemFactory] is the interface that
+ * This, along with the associated [BuildSystemProvider] is the interface that
  * build system plugins implement.
  */
 interface BuildSystemInterface {

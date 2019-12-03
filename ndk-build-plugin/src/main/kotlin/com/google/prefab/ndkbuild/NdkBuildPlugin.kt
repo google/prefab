@@ -17,7 +17,6 @@
 package com.google.prefab.ndkbuild
 
 import com.google.prefab.api.Android
-import com.google.prefab.api.BuildSystemFactory
 import com.google.prefab.api.BuildSystemInterface
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.Module
@@ -231,18 +230,4 @@ class NdkBuildPlugin(
     } ?: throw RuntimeException(
         "Could not find a module matching $reference"
     )
-
-    /**
-     * The [NdkBuildPlugin] factory object.
-     */
-    companion object : BuildSystemFactory {
-        override val identifier: String = "ndk-build"
-
-        override fun create(
-            outputDirectory: File,
-            packages: List<Package>
-        ): BuildSystemInterface {
-            return NdkBuildPlugin(outputDirectory, packages)
-        }
-    }
 }
