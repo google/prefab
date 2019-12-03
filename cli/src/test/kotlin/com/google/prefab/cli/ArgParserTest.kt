@@ -34,11 +34,7 @@ class ArgParserTest {
         }
     }
 
-    private val plug1: File = File.createTempFile("plugin", ".jar").apply {
-        deleteOnExit()
-    }
-
-    private val plug2: File = File.createTempFile("plugin", ".jar").apply {
+    private val file: File = File.createTempFile("tmpfile", null).apply {
         deleteOnExit()
     }
 
@@ -84,37 +80,7 @@ class ArgParserTest {
                 listOf(
                     "--platform", "android",
                     "--build-system", "ndk-build",
-                    "--output", plug1.path,
-                    fooPath.toString()
-                )
-            )
-        }
-    }
-
-    @Test
-    fun `fails if --plugin-path doesn't exist`() {
-        assertFailsWith(BadParameterValue::class) {
-            NoRunTestCli().parse(
-                listOf(
-                    "--platform", "android",
-                    "--build-system", "ndk-build",
-                    "--plugin-path", "bazel-plugin.jar",
-                    "--output", "out",
-                    fooPath.toString()
-                )
-            )
-        }
-    }
-
-    @Test
-    fun `fails if --plugin-path is a directory`() {
-        assertFailsWith(BadParameterValue::class) {
-            NoRunTestCli().parse(
-                listOf(
-                    "--platform", "android",
-                    "--build-system", "ndk-build",
-                    "--plugin-path", quxPath.toString(),
-                    "--output", "out",
+                    "--output", file.path,
                     fooPath.toString()
                 )
             )
@@ -163,7 +129,7 @@ class ArgParserTest {
                     "--ndk-version", "21",
                     "--build-system", "ndk-build",
                     "--output", "out",
-                    plug1.path
+                    file.path
                 )
             )
         }
@@ -196,8 +162,6 @@ class ArgParserTest {
                 "--ndk-version", "21",
                 "--build-system", "ndk-build",
                 "--output", "out",
-                "--plugin-path", plug1.path,
-                "--plugin-path", plug2.path,
                 fooPath.toString(),
                 quxPath.toString()
             )

@@ -26,8 +26,11 @@ dependencies {
     testImplementation("io.mockk:mockk:1.9.3")
 
     implementation(project(":api"))
-    implementation(project(":cmake-plugin"))
-    implementation(project(":ndk-build-plugin"))
+    runtimeOnly(project(":cmake-plugin"))
+    runtimeOnly(project(":ndk-build-plugin"))
+
+    testImplementation(project(":cmake-plugin"))
+    testImplementation(project(":ndk-build-plugin"))
 }
 
 application {
@@ -45,4 +48,7 @@ tasks.withType<Jar> {
             it
         )
     })
+
+    dependsOn(":cmake-plugin:jar")
+    dependsOn(":ndk-build-plugin:jar")
 }

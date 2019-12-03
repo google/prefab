@@ -17,7 +17,6 @@
 package com.google.prefab.cmake
 
 import com.google.prefab.api.Android
-import com.google.prefab.api.BuildSystemFactory
 import com.google.prefab.api.BuildSystemInterface
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.Module
@@ -173,19 +172,5 @@ class CMakePlugin(
             endif()
             """.trimIndent()
         )
-    }
-
-    /**
-     * The [CMakePlugin] factory object.
-     */
-    companion object : BuildSystemFactory {
-        override val identifier: String = "cmake"
-
-        override fun create(
-            outputDirectory: File,
-            packages: List<Package>
-        ): BuildSystemInterface {
-            return CMakePlugin(outputDirectory, packages)
-        }
     }
 }

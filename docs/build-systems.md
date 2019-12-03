@@ -3,9 +3,9 @@
 Prefab's primary task is generating the build system integrations needed to
 consume the modules a package describes. This support is provided by plugins for
 each build system. By default, Prefab includes and loads the plugins for [CMake]
-and [ndk-build]. Additional plugins can be provided at run-time with the
-`--plugin` option. For common build systems, please consider [contributing] your
-plugin to Prefab.
+and [ndk-build]. Additional plugins can be provided at run-time by adding them
+to the Java classpath. For common build systems, please consider [contributing]
+your plugin to Prefab.
 
 [CMake]: https://cmake.org/
 [contributing]: https://github.com/google/prefab/blob/master/CONTRIBUTING.md

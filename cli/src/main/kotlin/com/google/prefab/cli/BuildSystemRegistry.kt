@@ -16,9 +16,8 @@
 
 package com.google.prefab.cli
 
-import com.google.prefab.api.BuildSystemFactory
-import com.google.prefab.cmake.CMakePlugin
-import com.google.prefab.ndkbuild.NdkBuildPlugin
+import com.google.prefab.api.BuildSystemProvider
+import java.util.ServiceLoader
 
 /**
  * A list of known build systems.
@@ -30,8 +29,9 @@ object BuildSystemRegistry {
     /**
      * The list of known build systems.
      */
-    private var buildSystems: List<BuildSystemFactory> =
-        listOf(CMakePlugin, NdkBuildPlugin)
+    private val buildSystems: List<BuildSystemProvider> =
+        ServiceLoader.load(BuildSystemProvider::class.java).iterator()
+            .asSequence().toList()
 
     /**
      * Determines whether or not a build system with the given name is
@@ -53,7 +53,7 @@ object BuildSystemRegistry {
      * @return The build system matching [identifier], or null if there is no
      * match.
      */
-    fun find(identifier: String): BuildSystemFactory? {
+    fun find(identifier: String): BuildSystemProvider? {
         return buildSystems.find { it.identifier == identifier }
     }
 }
