@@ -128,10 +128,10 @@ class NdkBuildPlugin(
                 ldLibs.add(reference.arg)
             } else {
                 val referredModule = findReferredModule(reference, module)
-                val prebuilt = referredModule.getLibraryFor(requirement)
-                if (prebuilt == null) {
+                if (referredModule.isHeaderOnly) {
                     staticLibraries.add(referredModule.name)
                 } else {
+                    val prebuilt = referredModule.getLibraryFor(requirement)
                     when (val extension = prebuilt.path.toFile().extension) {
                         "so" -> sharedLibraries.add(referredModule.name)
                         "a" -> staticLibraries.add(referredModule.name)
@@ -169,13 +169,7 @@ class NdkBuildPlugin(
                 """.trimIndent()
             )
         } else {
-            val prebuilt =
-                module.getLibraryFor(requirement) ?: throw RuntimeException(
-                    "No library found matching ${requirement.abi} API " +
-                            "${requirement.api} for ${module.canonicalName} " +
-                            "and module is not header only."
-                )
-
+            val prebuilt = module.getLibraryFor(requirement)
             val prebuiltType: String =
                 when (val extension = prebuilt.path.toFile().extension) {
                     "so" -> "PREBUILT_SHARED_LIBRARY"

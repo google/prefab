@@ -23,7 +23,6 @@ import org.junit.jupiter.api.assertThrows
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -38,9 +37,17 @@ class AndroidTest {
         every { arm32Lib.path } returns Paths.get("libfoo.so")
         every { arm64Lib.platform } returns arm64
         every { arm64Lib.path } returns Paths.get("libfoo.so")
-        assertFalse(arm32.canUse(arm64Lib))
-        assertFalse(arm64.canUse(arm32Lib))
-        assertTrue(arm64.canUse(arm64Lib))
+        assertEquals(
+            IncompatibleLibrary(
+                "User is targeting armeabi-v7a but library is for arm64-v8a"
+            ), arm32.checkIfUsable(arm64Lib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User is targeting arm64-v8a but library is for armeabi-v7a"
+            ), arm64.checkIfUsable(arm32Lib)
+        )
+        assertTrue(arm64.checkIfUsable(arm64Lib) is CompatibleLibrary)
     }
 
     @Test
@@ -53,8 +60,12 @@ class AndroidTest {
         every { oldLib.path } returns Paths.get("libfoo.so")
         every { newLib.platform } returns new
         every { newLib.path } returns Paths.get("libfoo.so")
-        assertTrue(new.canUse(oldLib))
-        assertFalse(old.canUse(newLib))
+        assertTrue(new.checkIfUsable(oldLib) is CompatibleLibrary)
+        assertEquals(
+            IncompatibleLibrary(
+                "User has minSdkVersion 16 but library was built for 21"
+            ), old.checkIfUsable(newLib)
+        )
     }
 
     @Test
@@ -106,56 +117,165 @@ class AndroidTest {
         val systemLib = mockk<PrebuiltLibrary>()
         every { systemLib.platform } returns system
 
-        assertTrue(cxxShared.canUse(cxxSharedSharedLib))
-        assertTrue(cxxShared.canUse(cxxSharedStaticLib))
-        assertFalse(cxxShared.canUse(cxxStaticSharedLib))
-        assertTrue(cxxShared.canUse(cxxStaticStaticLib))
-        assertFalse(cxxShared.canUse(gnuSharedSharedLib))
-        assertFalse(cxxShared.canUse(gnuSharedStaticLib))
-        assertTrue(cxxShared.canUse(noneLib))
-        assertTrue(cxxShared.canUse(systemLib))
+        assertTrue(
+            cxxShared.checkIfUsable(cxxSharedSharedLib) is CompatibleLibrary
+        )
+        assertTrue(
+            cxxShared.checkIfUsable(cxxSharedStaticLib) is CompatibleLibrary
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "Library is a shared library with a statically linked STL " +
+                        "and cannot be used with any library using the STL"
+            ), cxxShared.checkIfUsable(cxxStaticSharedLib)
+        )
+        assertTrue(
+            cxxShared.checkIfUsable(cxxStaticStaticLib) is CompatibleLibrary
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libc++ but library requires libstdc++"
+            ), cxxShared.checkIfUsable(gnuSharedSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libc++ but library requires libstdc++"
+            ), cxxShared.checkIfUsable(gnuSharedStaticLib)
+        )
+        assertTrue(cxxShared.checkIfUsable(noneLib) is CompatibleLibrary)
+        assertTrue(cxxShared.checkIfUsable(systemLib) is CompatibleLibrary)
 
-        assertFalse(cxxStatic.canUse(cxxSharedSharedLib))
-        assertTrue(cxxStatic.canUse(cxxSharedStaticLib))
-        assertFalse(cxxStatic.canUse(cxxStaticSharedLib))
-        assertTrue(cxxStatic.canUse(cxxStaticStaticLib))
-        assertFalse(cxxStatic.canUse(gnuSharedSharedLib))
-        assertFalse(cxxStatic.canUse(gnuSharedStaticLib))
-        assertTrue(cxxStatic.canUse(noneLib))
-        assertTrue(cxxStatic.canUse(systemLib))
+        assertEquals(
+            IncompatibleLibrary(
+                "User is using a static STL but library requires a shared STL"
+            ), cxxStatic.checkIfUsable(cxxSharedSharedLib)
+        )
+        assertTrue(
+            cxxStatic.checkIfUsable(cxxSharedStaticLib) is CompatibleLibrary
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "Library is a shared library with a statically linked STL " +
+                        "and cannot be used with any library using the STL"
+            ), cxxStatic.checkIfUsable(cxxStaticSharedLib)
+        )
+        assertTrue(
+            cxxStatic.checkIfUsable(cxxStaticStaticLib) is CompatibleLibrary
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libc++ but library requires libstdc++"
+            ), cxxStatic.checkIfUsable(gnuSharedSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libc++ but library requires libstdc++"
+            ), cxxStatic.checkIfUsable(gnuSharedStaticLib)
+        )
+        assertTrue(cxxStatic.checkIfUsable(noneLib) is CompatibleLibrary)
+        assertTrue(cxxStatic.checkIfUsable(systemLib) is CompatibleLibrary)
 
-        assertFalse(gnuShared.canUse(cxxSharedSharedLib))
-        assertFalse(gnuShared.canUse(cxxSharedStaticLib))
-        assertFalse(gnuShared.canUse(cxxStaticSharedLib))
-        assertFalse(gnuShared.canUse(cxxStaticStaticLib))
-        assertTrue(gnuShared.canUse(gnuSharedSharedLib))
-        assertTrue(gnuShared.canUse(gnuSharedStaticLib))
-        assertTrue(gnuShared.canUse(noneLib))
-        assertTrue(gnuShared.canUse(systemLib))
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libstdc++ but library requires libc++"
+            ), gnuShared.checkIfUsable(cxxSharedSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libstdc++ but library requires libc++"
+            ), gnuShared.checkIfUsable(cxxSharedStaticLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libstdc++ but library requires libc++"
+            ), gnuShared.checkIfUsable(cxxStaticSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested libstdc++ but library requires libc++"
+            ), gnuShared.checkIfUsable(cxxStaticStaticLib)
+        )
+        assertTrue(
+            gnuShared.checkIfUsable(gnuSharedSharedLib) is CompatibleLibrary
+        )
+        assertTrue(
+            gnuShared.checkIfUsable(gnuSharedStaticLib) is CompatibleLibrary
+        )
+        assertTrue(gnuShared.checkIfUsable(noneLib) is CompatibleLibrary)
+        assertTrue(gnuShared.checkIfUsable(systemLib) is CompatibleLibrary)
 
-        assertFalse(none.canUse(cxxSharedSharedLib))
-        assertFalse(none.canUse(cxxSharedStaticLib))
-        assertFalse(none.canUse(cxxStaticSharedLib))
-        assertFalse(none.canUse(cxxStaticStaticLib))
-        assertFalse(none.canUse(gnuSharedSharedLib))
-        assertFalse(none.canUse(gnuSharedStaticLib))
-        assertTrue(none.canUse(noneLib))
-        assertTrue(none.canUse(systemLib))
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), none.checkIfUsable(cxxSharedSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), none.checkIfUsable(cxxSharedStaticLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), none.checkIfUsable(cxxStaticSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), none.checkIfUsable(cxxStaticStaticLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libstdc++"
+            ), none.checkIfUsable(gnuSharedSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libstdc++"
+            ), none.checkIfUsable(gnuSharedStaticLib)
+        )
+        assertTrue(none.checkIfUsable(noneLib) is CompatibleLibrary)
+        assertTrue(none.checkIfUsable(systemLib) is CompatibleLibrary)
 
-        assertFalse(system.canUse(cxxSharedSharedLib))
-        assertFalse(system.canUse(cxxSharedStaticLib))
-        assertFalse(system.canUse(cxxStaticSharedLib))
-        assertFalse(system.canUse(cxxStaticStaticLib))
-        assertFalse(system.canUse(gnuSharedSharedLib))
-        assertFalse(system.canUse(gnuSharedStaticLib))
-        assertTrue(system.canUse(noneLib))
-        assertTrue(system.canUse(systemLib))
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), system.checkIfUsable(cxxSharedSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), system.checkIfUsable(cxxSharedStaticLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), system.checkIfUsable(cxxStaticSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libc++"
+            ), system.checkIfUsable(cxxStaticStaticLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libstdc++"
+            ), system.checkIfUsable(gnuSharedSharedLib)
+        )
+        assertEquals(
+            IncompatibleLibrary(
+                "User requested no STL but library requires libstdc++"
+            ), system.checkIfUsable(gnuSharedStaticLib)
+        )
+        assertTrue(system.checkIfUsable(noneLib) is CompatibleLibrary)
+        assertTrue(system.checkIfUsable(systemLib) is CompatibleLibrary)
     }
 
     @Test
     fun `best match for API level is found`() {
         val lollipop = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
-        val marshmallow = Android(Android.Abi.Arm64, 23, Android.Stl.CxxShared, 21)
+        val marshmallow =
+            Android(Android.Abi.Arm64, 23, Android.Stl.CxxShared, 21)
         val nougat = Android(Android.Abi.Arm64, 24, Android.Stl.CxxShared, 21)
         val pie = Android(Android.Abi.Arm64, 28, Android.Stl.CxxShared, 21)
         val arm32 = Android(Android.Abi.Arm32, 16, Android.Stl.CxxShared, 21)

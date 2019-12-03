@@ -133,13 +133,7 @@ class CMakePlugin(
                 """.trimIndent()
             )
         } else {
-            val prebuilt =
-                module.getLibraryFor(requirements) ?: throw RuntimeException(
-                    "No library found matching $requirements for " +
-                            "${module.canonicalName} and module is not header " +
-                            "only."
-                )
-
+            val prebuilt = module.getLibraryFor(requirements)
             configFile.appendText(
                 """
                 add_library($target SHARED IMPORTED)

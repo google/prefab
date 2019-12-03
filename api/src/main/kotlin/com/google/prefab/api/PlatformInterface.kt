@@ -19,6 +19,24 @@ package com.google.prefab.api
 import java.nio.file.Path
 
 /**
+ * Result of prebuilt library usability check.
+ */
+sealed class LibraryUsabilityResult
+
+/**
+ * The library is usable.
+ */
+object CompatibleLibrary : LibraryUsabilityResult()
+
+/**
+ * The library is not usable.
+ *
+ * @property[reason] The reason the library was rejected to be shown to the
+ * user.
+ */
+data class IncompatibleLibrary(val reason: String) : LibraryUsabilityResult()
+
+/**
  * Defines the platform-specific information that is used to determine
  * compatibility between user requirements and prebuilt libraries.
  */
@@ -40,10 +58,11 @@ interface PlatformDataInterface {
      * used given the user's requirements.
      *
      * @param[library] The library to be checked for compatibility.
-     * @return true if the given [library] is compatible with this
-     * [PlatformDataInterface] platform.
+     * @return A [LibraryUsabilityResult] describing if the [library] is usable
+     * with this [platform][PlatformDataInterface], and if not explains why the
+     * [library] was rejected.
      */
-    fun canUse(library: PrebuiltLibrary): Boolean
+    fun checkIfUsable(library: PrebuiltLibrary): LibraryUsabilityResult
 
     /**
      * Finds the best fit library for these platform requirements.

@@ -19,6 +19,7 @@ package com.google.prefab.cli
 import com.google.prefab.api.Android
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.Module
+import com.google.prefab.api.NoMatchingLibraryException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import io.mockk.every
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.TestInstance
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ModuleTest {
@@ -95,20 +97,24 @@ class ModuleTest {
         val oreo = Android(Android.Abi.Arm64, 26, Android.Stl.CxxShared, 21)
         val pie = Android(Android.Abi.Arm64, 28, Android.Stl.CxxShared, 21)
 
-        assertEquals(null, byApi.getLibraryFor(lollipop))
+        val ex = assertFailsWith(NoMatchingLibraryException::class) {
+            byApi.getLibraryFor(lollipop)
+        }
+
         assertEquals(
-            23,
-            (byApi.getLibraryFor(marshmallow)?.platform as Android?)?.api
+            """
+            No compatible library found for //find_best_match/byapi. Rejected the following libraries:
+            android.arm64-v8a-23: User has minSdkVersion 21 but library was built for 23
+            android.arm64-v8a-24: User has minSdkVersion 21 but library was built for 24
+            android.arm64-v8a-28: User has minSdkVersion 21 but library was built for 28
+            """.trimIndent(), ex.message
         )
         assertEquals(
-            24,
-            (byApi.getLibraryFor(nougat)?.platform as Android?)?.api
+            23, (byApi.getLibraryFor(marshmallow).platform as Android).api
         )
-        assertEquals(
-            24,
-            (byApi.getLibraryFor(oreo)?.platform as Android?)?.api
-        )
-        assertEquals(28, (byApi.getLibraryFor(pie)?.platform as Android?)?.api)
+        assertEquals(24, (byApi.getLibraryFor(nougat).platform as Android).api)
+        assertEquals(24, (byApi.getLibraryFor(oreo).platform as Android).api)
+        assertEquals(28, (byApi.getLibraryFor(pie).platform as Android).api)
 
         val byNdk = Module(Paths.get(
             this.javaClass.getResource(
@@ -123,24 +129,19 @@ class ModuleTest {
         val r22 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 22)
 
         assertEquals(
-            19,
-            (byNdk.getLibraryFor(r18)?.platform as Android?)?.ndkMajorVersion
+            19, (byNdk.getLibraryFor(r18).platform as Android).ndkMajorVersion
         )
         assertEquals(
-            19,
-            (byNdk.getLibraryFor(r19)?.platform as Android?)?.ndkMajorVersion
+            19, (byNdk.getLibraryFor(r19).platform as Android).ndkMajorVersion
         )
         assertEquals(
-            20,
-            (byNdk.getLibraryFor(r20)?.platform as Android?)?.ndkMajorVersion
+            20, (byNdk.getLibraryFor(r20).platform as Android).ndkMajorVersion
         )
         assertEquals(
-            21,
-            (byNdk.getLibraryFor(r21)?.platform as Android?)?.ndkMajorVersion
+            21, (byNdk.getLibraryFor(r21).platform as Android).ndkMajorVersion
         )
         assertEquals(
-            21,
-            (byNdk.getLibraryFor(r22)?.platform as Android?)?.ndkMajorVersion
+            21, (byNdk.getLibraryFor(r22).platform as Android).ndkMajorVersion
         )
     }
 }

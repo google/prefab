@@ -29,6 +29,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.google.prefab.api.Android
+import com.google.prefab.api.NoMatchingLibraryException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import java.io.File
