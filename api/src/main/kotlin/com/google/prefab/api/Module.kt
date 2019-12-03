@@ -45,6 +45,24 @@ class MissingArtifactIDException(module: Module, artifactDirectory: Path) :
     )
 
 /**
+ * The module does not contain a library compatible with the user's
+ * requirements.
+ *
+ * @param[module] The module being searched.
+ * @param[rejectedLibraries] A map from the rejected libraries to reasons for
+ * their rejection.
+ */
+class NoMatchingLibraryException(
+    module: Module, rejectedLibraries: Map<PrebuiltLibrary, String>
+) : Exception(
+    "No compatible library found for ${module.canonicalName}. Rejected the " +
+            "following libraries:\n" +
+            rejectedLibraries.map {
+                "${it.key.path.parent.fileName}: ${it.value}"
+            }.joinToString("\n")
+)
+
+/**
  * A Prefab module.
  *
  * @property[path] The path to the module directory.
@@ -109,19 +127,6 @@ class Module(val path: Path, val pkg: Package) {
     val isHeaderOnly: Boolean = libraries.isEmpty()
 
     /**
-     * Finds all libraries that can be used with the given
-     * [platform requirements][PlatformDataInterface].
-     *
-     * @param[platformData] The build requirements to find a library for.
-     * @return All [prebuilt libraries][PrebuiltLibrary] matching the given
-     * requirements. May be empty.
-     */
-    private fun findCompatibleLibraries(
-        platformData: PlatformDataInterface
-    ): List<PrebuiltLibrary> =
-        libraries.filter { platformData.canUse(it) }
-
-    /**
      * Finds the library matching the given
      * [platform requirements][PlatformDataInterface].
      *
@@ -133,12 +138,22 @@ class Module(val path: Path, val pkg: Package) {
      * @return The [PrebuiltLibrary] matching the given requirements, or null if
      * there is no match.
      */
-    fun getLibraryFor(platformData: PlatformDataInterface): PrebuiltLibrary? {
-        val allMatches = findCompatibleLibraries(platformData)
-        if (allMatches.isEmpty()) {
-            return null
+    fun getLibraryFor(platformData: PlatformDataInterface): PrebuiltLibrary {
+        val compatible = mutableListOf<PrebuiltLibrary>()
+        val rejections = mutableMapOf<PrebuiltLibrary, String>()
+        for (library in libraries) {
+            when (val result = platformData.checkIfUsable(library)) {
+                is CompatibleLibrary -> compatible.add(library)
+                is IncompatibleLibrary -> rejections[library] = result.reason
+            }
         }
-        return platformData.findBestMatch(allMatches)
+        if (compatible.isEmpty()) {
+            throw NoMatchingLibraryException(
+                this, rejections.toSortedMap(
+                    compareBy { it.path.parent.fileName })
+            )
+        }
+        return platformData.findBestMatch(compatible)
     }
 
     /**

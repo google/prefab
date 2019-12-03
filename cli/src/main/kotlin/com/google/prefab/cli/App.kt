@@ -16,6 +16,7 @@
 
 package com.google.prefab.cli
 
+import com.google.prefab.api.NoMatchingLibraryException
 import kotlin.system.exitProcess
 
 /**
@@ -27,6 +28,9 @@ fun main(args: Array<String>) {
     try {
         Cli().main(args)
     } catch (ex: FatalApplicationError) {
+        System.err.println(ex.message)
+        exitProcess(1)
+    } catch (ex: NoMatchingLibraryException) {
         System.err.println(ex.message)
         exitProcess(1)
     }

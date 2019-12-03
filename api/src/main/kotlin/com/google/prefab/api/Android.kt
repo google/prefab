@@ -148,26 +148,26 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         /**
          * The family of the STL.
          */
-        enum class Family {
+        enum class Family(val familyName: String) {
             /**
              * libc++.
              */
-            Cxx,
+            Cxx("libc++"),
 
             /**
              * GNU libstdc++.
              */
-            Gnustl,
+            Gnustl("libstdc++"),
 
             /**
              * None or system. STLs with no linking restrictions.
              */
-            None,
+            None("no STL"),
 
             /**
              * STLport.
              */
-            Stlport
+            Stlport("STLport")
         }
 
         companion object {
@@ -184,7 +184,8 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         }
     }
 
-    private fun stlsAreCompatible(library: PrebuiltLibrary): Boolean {
+    private fun stlsAreCompatible(library: PrebuiltLibrary):
+            LibraryUsabilityResult {
         require(library.platform is Android)
 
         // The case not explicitly handled here is the case where the user is
@@ -198,7 +199,7 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         // No restrictions on libraries that don't use any STL, and the system
         // "STL" has similar requirements since it's not really an STL.
         if (library.platform.stl.family == Stl.Family.None) {
-            return true
+            return CompatibleLibrary
         }
 
         // Otherwise STLs must be the same family.
@@ -210,7 +211,10 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         // If the user's dependencies are using the STL, they must choose an STL
         // for their application even if their own libraries do not use one.
         if (stl.family != library.platform.stl.family) {
-            return false
+            return IncompatibleLibrary(
+                "User requested ${stl.family.familyName} but library " +
+                        "requires ${library.platform.stl.family.familyName}"
+            )
         }
 
         val pathMatcher = library.path.fileSystem.getPathMatcher("glob:*.a")
@@ -218,7 +222,7 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
             // The dependency is a static library, so its choice of static or
             // shared STL is not actually meaningful; it'll use whatever the
             // user uses. No further checking required.
-            return true
+            return CompatibleLibrary
         }
 
         if (!library.platform.stl.isShared) {
@@ -226,48 +230,52 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
             // the STL. This prevents the user or any of the user's dependencies
             // from using the STL. We can't perform that check, so this library
             // can't be reliably used anywhere.
-            return false
+            return IncompatibleLibrary(
+                "Library is a shared library with a statically linked STL " +
+                        "and cannot be used with any library using the STL"
+            )
         }
 
         if (!stl.isShared) {
             // For the same reason, the user can't use a static STL if their
             // dependencies are using a shared STL.
-            return false
+            return IncompatibleLibrary(
+                "User is using a static STL but library requires a shared STL"
+            )
         }
 
         // Our STLs are of the same family, our dependency is a shared
         // library that is using a shared STL, and we're using a shared STL.
-        return true
+        return CompatibleLibrary
     }
 
-    // TODO: Return a reason for library rejection.
-    // If no matching library can be found in the module then we should emit an
-    // error showing all the libraries we considered and why they were rejected.
-    override fun canUse(library: PrebuiltLibrary): Boolean {
+    override fun checkIfUsable(library: PrebuiltLibrary): LibraryUsabilityResult {
         if (library.platform !is Android) {
-            return false
+            return IncompatibleLibrary("Library is not an Android library")
         }
 
         if (abi != library.platform.abi) {
-            return false
+            return IncompatibleLibrary(
+                "User is targeting ${abi.targetArchAbi} but library is for " +
+                        library.platform.abi.targetArchAbi
+            )
         }
 
         if (api < library.platform.api) {
-            return false
+            return IncompatibleLibrary(
+                "User has minSdkVersion $api but library was built for " +
+                        library.platform.api
+            )
         }
 
-        if (!stlsAreCompatible(library)) {
-            return false
-        }
-
-        return true
+        return stlsAreCompatible(library)
     }
 
     override fun findBestMatch(
         libraries: List<PrebuiltLibrary>
     ): PrebuiltLibrary {
         require(libraries.isNotEmpty())
-        require(libraries.all { canUse(it) })
+        require(libraries.all { checkIfUsable(it) is CompatibleLibrary })
         val moduleName = libraries.first().module.canonicalName
 
         val allLibraries: List<Pair<PrebuiltLibrary, Android>> = libraries.map {
