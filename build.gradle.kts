@@ -40,7 +40,7 @@ repositories {
 
 subprojects {
     group = "com.google.prefab"
-    version = "0.9.0" + if (!rootProject.hasProperty("prefab.release")) {
+    version = "1.0.0" + if (!rootProject.hasProperty("prefab.release")) {
         "-SNAPSHOT"
     } else {
         ""
