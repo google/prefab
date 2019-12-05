@@ -38,13 +38,58 @@ repositories {
     jcenter()
 }
 
+/**
+ * The version number of the repository.
+ *
+ * Used as the version number for snapshot (non-tagged) builds. Tagged builds
+ * will be matched to this to prevent tagging releases with the wrong version.
+ */
+val baseVersion: String = "1.0.0"
+
+/**
+ * The name of the tag being built.
+ *
+ * This is passed from the cloud builder as described by
+ * https://cloud.google.com/cloud-build/docs/configuring-builds/substitute-variable-values.
+ *
+ * If not defined, this is a snapshot build.
+ */
+val tagName: String? = rootProject.findProperty("prefab.tagName") as String?
+
+/**
+ * The qualifier portion of the version for this build.
+ *
+ * May be empty. If non-empty, the value will be hyphen-prefixed.
+ *
+ * For non-tagged builds, the qualifier is "-SNAPSHOT". For tagged builds the
+ * qualifier depends on the tag, but will be either alpha, beta, milestone, or
+ * rc, and will contain a numeric identifier. For example, "-alpha10" or "-rc1".
+ *
+ * If no qualifier is found in the tag, this is a final release build and the
+ * qualifier will be the empty string.
+ */
+val qualifier: String = if (tagName != null) {
+    val pattern =
+        """^v(\d+\.\d+\.\d+)(?:-((?:alpha|beta|milestone|rc)\d+))?$""".toRegex()
+    val match = pattern.find(tagName)
+    require(match != null) {
+        "prefab.tagName did not match expected tag pattern"
+    }
+    val versionMatch = match.groups[1]
+    require(versionMatch != null)
+    require(versionMatch.value == baseVersion) {
+        "Expected tag version to be $baseVersion"
+    }
+    match.groups[2]?.let {
+        "-${it.value}"
+    } ?: ""
+} else {
+    "-SNAPSHOT"
+}
+
 subprojects {
     group = "com.google.prefab"
-    version = "1.0.0" + if (!rootProject.hasProperty("prefab.release")) {
-        "-SNAPSHOT"
-    } else {
-        ""
-    }
+    version = "$baseVersion$qualifier"
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "kotlinx-serialization")

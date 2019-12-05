@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/gradle:5.6.2-jdk-8'
-  args: ['--stacktrace', '-Pprefab.release', 'release']
+  args: ['--stacktrace', '-Pprefab.tagName=$TAG_NAME', 'release']
 artifacts:
   objects:
     location: 'gs://$_ARTIFACT_BUCKET/$PROJECT_ID/$TAG_NAME'
