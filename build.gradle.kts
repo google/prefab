@@ -39,11 +39,19 @@ repositories {
 }
 
 subprojects {
+    val versionBase = rootProject.property("prefab.version") as String
+    require(versionBase.matches("""^\d+\.\d+\.\d+$""".toRegex())) {
+        "prefab.version is not in major.minor.path format"
+    }
+    val qualifier = rootProject.property("prefab.qualifier") as String
+    require(qualifier.matches("""^(-(alpha|beta|rc)\d+)?$""".toRegex())) {
+        "prefab.qualifier did not match the expected format"
+    }
     group = "com.google.prefab"
-    version = "1.0.0" + if (!rootProject.hasProperty("prefab.release")) {
+    version = versionBase + if (!rootProject.hasProperty("prefab.release")) {
         "-SNAPSHOT"
     } else {
-        ""
+        qualifier
     }
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
