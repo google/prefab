@@ -18,6 +18,7 @@ plugins {
     application
 }
 
+extra["publish"] = true
 extra["pomName"] = "Prefab"
 extra["pomDescription"] = "The main Prefab program."
 
