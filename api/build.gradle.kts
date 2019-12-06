@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+extra["publish"] = true
 extra["pomName"] = "Prefab Plugin API"
 extra["pomDescription"] = "The API for Prefab plugins."
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+extra["publish"] = false
 extra["pomName"] = "Prefab ndk-build Plugin"
 extra["pomDescription"] = "The Prefab ndk-build plugin."
 

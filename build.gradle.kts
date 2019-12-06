@@ -82,44 +82,48 @@ subprojects {
     }
 
     afterEvaluate {
-        publishing {
-            publications {
-                create<MavenPublication>("default") {
-                    from(components["java"])
+        if (extra["publish"] as Boolean) {
+            publishing {
+                publications {
+                    create<MavenPublication>("default") {
+                        from(components["java"])
 
-                    pom {
-                        name.set(extra["pomName"] as String)
-                        description.set(extra["pomDescription"] as String)
-                        url.set("https://google.github.io/prefab/")
-                        licenses {
-                            license {
-                                name.set("Apache License, Version 2.0")
-                                url.set(
-                                    "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                                )
-                                distribution.set("repo")
+                        pom {
+                            name.set(extra["pomName"] as String)
+                            description.set(extra["pomDescription"] as String)
+                            url.set("https://google.github.io/prefab/")
+                            licenses {
+                                license {
+                                    name.set("Apache License, Version 2.0")
+                                    url.set(
+                                        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                                    )
+                                    distribution.set("repo")
+                                }
                             }
-                        }
-                        scm {
-                            connection.set(
-                                "scm:git:https://github.com/google/prefab.git"
-                            )
-                            developerConnection.set(
-                                "scm:git:git@github.com:google/prefab.git"
-                            )
-                            url.set("https://github.com/google/prefab")
-                        }
-                        issueManagement {
-                            system.set("GitHub")
-                            url.set("https://github.com/google/prefab/issues")
+                            scm {
+                                connection.set(
+                                    "scm:git:https://github.com/google/prefab.git"
+                                )
+                                developerConnection.set(
+                                    "scm:git:git@github.com:google/prefab.git"
+                                )
+                                url.set("https://github.com/google/prefab")
+                            }
+                            issueManagement {
+                                system.set("GitHub")
+                                url.set(
+                                    "https://github.com/google/prefab/issues"
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            repositories {
-                maven {
-                    url = uri("${rootProject.buildDir}/repository")
+                repositories {
+                    maven {
+                        url = uri("${rootProject.buildDir}/repository")
+                    }
                 }
             }
         }

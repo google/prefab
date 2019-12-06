@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+extra["publish"] = false
 extra["pomName"] = "Prefab CMake Plugin"
 extra["pomDescription"] = "The Prefab CMake build plugin."
 
