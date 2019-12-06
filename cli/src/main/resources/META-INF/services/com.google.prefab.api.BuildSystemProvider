@@ -1,1 +1,2 @@
+com.google.prefab.cmake.CMakePluginProvider
 com.google.prefab.ndkbuild.NdkBuildPluginProvider
