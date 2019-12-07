@@ -26,45 +26,24 @@ prefab.qualifier =
 The concatenated `<VERSION_NUMBER><QUALIFIER>` will be referred to as
 `<VERSION>` for the remainder of this doc.
 
-To create a new release of Prefab:
+The `scripts/release` script is used to prepare a new release of Prefab. To
+create a new release from the current HEAD, use `scripts/release <VERSION>`. A
+second optional argument can be used to name a specific branch point, in case a
+release needs to be cut from a point other than tip-of-tree.
 
-1. Verify that CHANGELOG.md is up to date. Release notes should exist for each
-   release version, but not for each alpha/beta/rc. For example, 1.0.0-rc1's
-   release notes should go in the 1.0.0 section.
-2. Checkout and update the master branch, create a branch to prepare the
-   release.
+This script will:
 
-   ```bash
-   git checkout master
-   git pull
-   git checkout -b release-<VERSION>
-   ```
+1. Verify the status of the commit being released (no outstanding changes, the
+   branch point has been merged upstream, etc)
+2. Create a branch
+3. Configure the version data
+4. Perform a clean build and run the tests
+5. Commit the changes
+6. Tag the commit
 
-   If releasing from a point other than the HEAD of master, create the branch
-   from that point instead.
-
-3. Update the version number and qualifier in gradle.properties.
-4. Test and commit changes:
-
-   ```bash
-   ./gradlew -Pprefab.release clean release
-   git commit -a -m 'Release Prefab v<VERSION>.'
-   ```
-
-5. Tag the release:
-
-   ```bash
-   git tag -a v<VERSION> -m 'Prefab release version <VERSION>.'
-   ```
-
-6. Push the tag:
-
-   ```bash
-   git push origin --tags
-   ```
-
-   The build server will now automatically begin building the release from the
-   tag.
+After running the release script, perform any additional required testing using
+the artifacts in `build/repository`. Once satisfied, push the tag upstream. The
+build server will automatically begin building the release from the tag.
 
 ## Publishing the release to Maven
 
