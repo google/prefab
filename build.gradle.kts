@@ -72,6 +72,14 @@ subprojects {
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0-M1")
     }
 
+    publishing {
+        repositories {
+            maven {
+                url = uri("${rootProject.buildDir}/repository")
+            }
+        }
+    }
+
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
         kotlinOptions.allWarningsAsErrors = true
@@ -79,54 +87,6 @@ subprojects {
             "-progressive",
             "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer"
         )
-    }
-
-    afterEvaluate {
-        if (extra["publish"] as Boolean) {
-            publishing {
-                publications {
-                    create<MavenPublication>("default") {
-                        from(components["java"])
-
-                        pom {
-                            name.set(extra["pomName"] as String)
-                            description.set(extra["pomDescription"] as String)
-                            url.set("https://google.github.io/prefab/")
-                            licenses {
-                                license {
-                                    name.set("Apache License, Version 2.0")
-                                    url.set(
-                                        "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                                    )
-                                    distribution.set("repo")
-                                }
-                            }
-                            scm {
-                                connection.set(
-                                    "scm:git:https://github.com/google/prefab.git"
-                                )
-                                developerConnection.set(
-                                    "scm:git:git@github.com:google/prefab.git"
-                                )
-                                url.set("https://github.com/google/prefab")
-                            }
-                            issueManagement {
-                                system.set("GitHub")
-                                url.set(
-                                    "https://github.com/google/prefab/issues"
-                                )
-                            }
-                        }
-                    }
-                }
-
-                repositories {
-                    maven {
-                        url = uri("${rootProject.buildDir}/repository")
-                    }
-                }
-            }
-        }
     }
 }
 
