@@ -14,11 +14,40 @@
  * limitations under the License.
  */
 
-extra["publish"] = true
-extra["pomName"] = "Prefab Plugin API"
-extra["pomDescription"] = "The API for Prefab plugins."
-
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.13.0")
     testImplementation("io.mockk:mockk:1.9.3")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("default") {
+            from(components["java"])
+
+            pom {
+                name.set("Prefab Plugin API")
+                description.set("The API for Prefab plugins.")
+                url.set(rootProject.property("prefab.pom.url") as String)
+                licenses {
+                    license {
+                        name.set(
+                            rootProject.property(
+                                "prefab.pom.licenseName"
+                            ) as String
+                        )
+                        url.set(
+                            rootProject.property(
+                                "prefab.pom.licenseUrl"
+                            ) as String
+                        )
+                        distribution.set(
+                            rootProject.property(
+                                "prefab.pom.licenseDistribution"
+                            ) as String
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

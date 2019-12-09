@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
+import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     application
+    id("com.github.johnrengelman.shadow").version("5.2.0")
 }
-
-extra["publish"] = true
-extra["pomName"] = "Prefab"
-extra["pomDescription"] = "The main Prefab program."
-
 dependencies {
     implementation("com.github.ajalt:clikt:2.2.0")
     testImplementation("io.mockk:mockk:1.9.3")
@@ -39,17 +38,47 @@ application {
     mainClassName = "com.google.prefab.cli.AppKt"
 }
 
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = application.mainClassName
+tasks {
+    named<ShadowJar>("shadowJar") {
+        mergeServiceFiles()
     }
 
-    from(configurations.runtimeClasspath.get().map {
-        if (it.isDirectory) it else zipTree(
-            it
-        )
-    })
+    named("build") {
+        dependsOn(shadowJar)
+    }
+}
 
-    dependsOn(":cmake-plugin:jar")
-    dependsOn(":ndk-build-plugin:jar")
+publishing {
+    publications {
+        create<MavenPublication>("shadow") {
+            configure<ShadowExtension> {
+                component(this@create)
+            }
+
+            pom {
+                name.set("Prefab")
+                description.set("The main Prefab program.")
+                url.set(rootProject.property("prefab.pom.url") as String)
+                licenses {
+                    license {
+                        name.set(
+                            rootProject.property(
+                                "prefab.pom.licenseName"
+                            ) as String
+                        )
+                        url.set(
+                            rootProject.property(
+                                "prefab.pom.licenseUrl"
+                            ) as String
+                        )
+                        distribution.set(
+                            rootProject.property(
+                                "prefab.pom.licenseDistribution"
+                            ) as String
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
