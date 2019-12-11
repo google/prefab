@@ -59,6 +59,7 @@ publishing {
                 name.set("Prefab")
                 description.set("The main Prefab program.")
                 url.set(rootProject.property("prefab.pom.url") as String)
+                packaging = "jar"
                 licenses {
                     license {
                         name.set(
