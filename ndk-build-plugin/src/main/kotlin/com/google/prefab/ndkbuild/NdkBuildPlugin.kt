@@ -23,6 +23,19 @@ import com.google.prefab.api.Module
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import java.io.File
+import java.nio.file.Path
+
+/**
+ * Sanitizes a path for use in an Android.mk file.
+ *
+ * Convert backslash separated paths to forward slash separated paths on
+ * Windows. Even on Windows, it's the norm to use forward slash separated paths
+ * for ndk-build.
+ *
+ * TODO: Figure out if we should be using split/join instead.
+ * It's not clear how that will behave with Windows \\?\ paths.
+ */
+fun Path.sanitize(): String = toString().replace('\\', '/')
 
 /**
  * The requested packages are mutually incompatible in ndk-build because module
@@ -152,14 +165,16 @@ class NdkBuildPlugin(
         val exportStaticLibraries =
             staticLibraries.joinToString(" ", prefix = " ").trimEnd()
 
+
         if (module.isHeaderOnly) {
             // ndk-build doesn't have an explicit header-only library type; it's
             // just a static library with no sources.
+            val escapedHeaders = module.includePath.sanitize()
             androidMk.appendText(
                 """
                 include $(CLEAR_VARS)
                 LOCAL_MODULE := ${module.name}
-                LOCAL_EXPORT_C_INCLUDES := ${module.includePath}
+                LOCAL_EXPORT_C_INCLUDES := $escapedHeaders
                 LOCAL_EXPORT_SHARED_LIBRARIES :=$exportSharedLibraries
                 LOCAL_EXPORT_STATIC_LIBRARIES :=$exportStaticLibraries
                 LOCAL_EXPORT_LDLIBS :=$exportLdLibs
@@ -170,6 +185,8 @@ class NdkBuildPlugin(
             )
         } else {
             val prebuilt = module.getLibraryFor(requirement)
+            val escapedLibrary = prebuilt.path.sanitize()
+            val escapedHeaders = prebuilt.includePath.sanitize()
             val prebuiltType: String =
                 when (val extension = prebuilt.path.toFile().extension) {
                     "so" -> "PREBUILT_SHARED_LIBRARY"
@@ -183,8 +200,8 @@ class NdkBuildPlugin(
                 """
                 include $(CLEAR_VARS)
                 LOCAL_MODULE := ${module.name}
-                LOCAL_SRC_FILES := ${prebuilt.path}
-                LOCAL_EXPORT_C_INCLUDES := ${prebuilt.includePath}
+                LOCAL_SRC_FILES := $escapedLibrary
+                LOCAL_EXPORT_C_INCLUDES := $escapedHeaders
                 LOCAL_EXPORT_SHARED_LIBRARIES :=$exportSharedLibraries
                 LOCAL_EXPORT_STATIC_LIBRARIES :=$exportStaticLibraries
                 LOCAL_EXPORT_LDLIBS :=$exportLdLibs

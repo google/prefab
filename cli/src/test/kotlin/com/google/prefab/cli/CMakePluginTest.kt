@@ -19,6 +19,7 @@ package com.google.prefab.cli
 import com.google.prefab.api.Android
 import com.google.prefab.api.Package
 import com.google.prefab.cmake.CMakePlugin
+import com.google.prefab.cmake.sanitize
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import java.nio.file.Files
@@ -96,8 +97,8 @@ class CMakePluginTest {
         assertTrue(quxConfigFile.exists())
         assertTrue(quxVersionFile.exists())
 
-        val barDir = fooPath.resolve("modules/bar")
-        val bazDir = fooPath.resolve("modules/baz")
+        val barDir = fooPath.resolve("modules/bar").sanitize()
+        val bazDir = fooPath.resolve("modules/baz").sanitize()
         assertEquals(
             """
             find_package(quux REQUIRED)
@@ -136,7 +137,7 @@ class CMakePluginTest {
             """.trimIndent(), fooVersionFile.readText()
         )
 
-        val quxDir = quxPath.resolve("modules/libqux")
+        val quxDir = quxPath.resolve("modules/libqux").sanitize()
         assertEquals(
             """
             find_package(foo REQUIRED)
@@ -184,8 +185,8 @@ class CMakePluginTest {
         assertTrue(configFile.exists())
         assertTrue(versionFile.exists())
 
-        val fooDir = packagePath.resolve("modules/foo")
-        val barDir = packagePath.resolve("modules/bar")
+        val fooDir = packagePath.resolve("modules/foo").sanitize()
+        val barDir = packagePath.resolve("modules/bar").sanitize()
         assertEquals(
             """
             add_library(header_only::bar SHARED IMPORTED)
@@ -240,7 +241,7 @@ class CMakePluginTest {
         // version file.
         assertFalse(versionFile.exists())
 
-        val modDir = path.resolve("modules/perplatform")
+        val modDir = path.resolve("modules/perplatform").sanitize()
         assertEquals(
             """
             add_library(per_platform_includes::perplatform SHARED IMPORTED)
@@ -294,8 +295,8 @@ class CMakePluginTest {
         assertTrue(configFile.exists())
         assertTrue(versionFile.exists())
 
-        val fooDir = packagePath.resolve("modules/foo")
-        val barDir = packagePath.resolve("modules/bar")
+        val fooDir = packagePath.resolve("modules/foo").sanitize()
+        val barDir = packagePath.resolve("modules/bar").sanitize()
         assertEquals(
             """
             add_library(header_only::bar SHARED IMPORTED)
