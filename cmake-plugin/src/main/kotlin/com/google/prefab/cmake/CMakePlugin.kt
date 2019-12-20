@@ -99,7 +99,7 @@ class CMakePlugin(
     private fun emitDependency(dep: String, configFile: File) {
         configFile.appendText(
             """
-            find_package($dep REQUIRED)
+            find_package($dep REQUIRED CONFIG)
 
 
         """.trimIndent()

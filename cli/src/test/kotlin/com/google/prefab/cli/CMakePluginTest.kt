@@ -101,9 +101,9 @@ class CMakePluginTest {
         val bazDir = fooPath.resolve("modules/baz").sanitize()
         assertEquals(
             """
-            find_package(quux REQUIRED)
+            find_package(quux REQUIRED CONFIG)
 
-            find_package(qux REQUIRED)
+            find_package(qux REQUIRED CONFIG)
 
             add_library(foo::bar SHARED IMPORTED)
             set_target_properties(foo::bar PROPERTIES
@@ -140,7 +140,7 @@ class CMakePluginTest {
         val quxDir = quxPath.resolve("modules/libqux").sanitize()
         assertEquals(
             """
-            find_package(foo REQUIRED)
+            find_package(foo REQUIRED CONFIG)
 
             add_library(qux::libqux SHARED IMPORTED)
             set_target_properties(qux::libqux PROPERTIES
