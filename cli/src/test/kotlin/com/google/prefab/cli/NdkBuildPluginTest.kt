@@ -20,6 +20,7 @@ import com.google.prefab.api.Android
 import com.google.prefab.api.Package
 import com.google.prefab.ndkbuild.DuplicateModuleNameException
 import com.google.prefab.ndkbuild.NdkBuildPlugin
+import com.google.prefab.ndkbuild.sanitize
 import org.junit.jupiter.api.TestInstance
 import java.nio.file.Files
 import java.nio.file.Path
@@ -78,8 +79,8 @@ class NdkBuildPluginTest {
         val fooAndroidMk = outputDirectory.resolve("foo/Android.mk").toFile()
         assertTrue(fooAndroidMk.exists())
 
-        val barDir = fooPath.resolve("modules/bar")
-        val bazDir = fooPath.resolve("modules/baz")
+        val barDir = fooPath.resolve("modules/bar").sanitize()
+        val bazDir = fooPath.resolve("modules/baz").sanitize()
         assertEquals(
             """
             LOCAL_PATH := $(call my-dir)
@@ -181,7 +182,7 @@ class NdkBuildPluginTest {
         val quxAndroidMk = outputDirectory.resolve("qux/Android.mk").toFile()
         assertTrue(quxAndroidMk.exists())
 
-        val quxDir = quxPath.resolve("modules/libqux")
+        val quxDir = quxPath.resolve("modules/libqux").sanitize()
         assertEquals(
             """
             LOCAL_PATH := $(call my-dir)
@@ -264,8 +265,8 @@ class NdkBuildPluginTest {
         val quxAndroidMk = outputDirectory.resolve("qux/Android.mk").toFile()
         assertTrue(quxAndroidMk.exists())
 
-        val barDir = fooPath.resolve("modules/bar")
-        val bazDir = fooPath.resolve("modules/baz")
+        val barDir = fooPath.resolve("modules/bar").sanitize()
+        val bazDir = fooPath.resolve("modules/baz").sanitize()
         assertEquals(
             """
             LOCAL_PATH := $(call my-dir)
@@ -298,7 +299,7 @@ class NdkBuildPluginTest {
             """.trimIndent(), fooAndroidMk.readText()
         )
 
-        val quxDir = quxPath.resolve("modules/libqux")
+        val quxDir = quxPath.resolve("modules/libqux").sanitize()
         assertEquals(
             """
             LOCAL_PATH := $(call my-dir)
@@ -371,8 +372,8 @@ class NdkBuildPluginTest {
             outputDirectory.resolve("header_only/Android.mk").toFile()
         assertTrue(androidMk.exists())
 
-        val fooDir = packagePath.resolve("modules/foo")
-        val barDir = packagePath.resolve("modules/bar")
+        val fooDir = packagePath.resolve("modules/foo").sanitize()
+        val barDir = packagePath.resolve("modules/bar").sanitize()
         assertEquals(
             """
             LOCAL_PATH := $(call my-dir)
@@ -428,7 +429,7 @@ class NdkBuildPluginTest {
         // Only some of the platforms in this module have their own headers, so
         // some of these module definitions point into the platform-specific
         // directory while others point to the module's headers.
-        val modDir = path.resolve("modules/perplatform")
+        val modDir = path.resolve("modules/perplatform").sanitize()
         assertEquals(
             """
             LOCAL_PATH := $(call my-dir)

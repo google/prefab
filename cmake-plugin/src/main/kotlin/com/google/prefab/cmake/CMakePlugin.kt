@@ -23,6 +23,19 @@ import com.google.prefab.api.Module
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import java.io.File
+import java.nio.file.Path
+
+/**
+ * Sanitizes a path for use in a CMake file.
+ *
+ * Convert backslash separated paths to forward slash separated paths on
+ * Windows. Even on Windows, it's the norm to use forward slash separated paths
+ * for ndk-build.
+ *
+ * TODO: Figure out if we should be using split/join instead.
+ * It's not clear how that will behave with Windows \\?\ paths.
+ */
+fun Path.sanitize(): String = toString().replace('\\', '/')
 
 /**
  * The build plugin for [CMake](https://cmake.org/).
@@ -119,13 +132,13 @@ class CMakePlugin(
             (ldLibs + localReferences + externalReferences).joinToString(";")
 
         val target = "${pkg.name}::${module.name}"
-
         if (module.isHeaderOnly) {
+            val escapedHeaders = module.includePath.sanitize()
             configFile.appendText(
                 """
                 add_library($target INTERFACE)
                 set_target_properties($target PROPERTIES
-                    INTERFACE_INCLUDE_DIRECTORIES "${module.includePath}"
+                    INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
                     INTERFACE_LINK_LIBRARIES "$libraries"
                 )
     
@@ -134,12 +147,14 @@ class CMakePlugin(
             )
         } else {
             val prebuilt = module.getLibraryFor(requirements)
+            val escapedLibrary = prebuilt.path.sanitize()
+            val escapedHeaders = prebuilt.includePath.sanitize()
             configFile.appendText(
                 """
                 add_library($target SHARED IMPORTED)
                 set_target_properties($target PROPERTIES
-                    IMPORTED_LOCATION "${prebuilt.path}"
-                    INTERFACE_INCLUDE_DIRECTORIES "${prebuilt.includePath}"
+                    IMPORTED_LOCATION "$escapedLibrary"
+                    INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
                     INTERFACE_LINK_LIBRARIES "$libraries"
                 )
 
