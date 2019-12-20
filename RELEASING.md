@@ -21,13 +21,18 @@ prefab.version = 1.0.0
 prefab.qualifier =
 ```
 
+## Creating a release build
+
 The concatenated `<VERSION_NUMBER><QUALIFIER>` will be referred to as
 `<VERSION>` for the remainder of this doc.
 
 To create a new release of Prefab:
 
-1. Checkout and update the master branch, create a branch to prepare the pull
-   request.
+1. Verify that CHANGELOG.md is up to date. Release notes should exist for each
+   release version, but not for each alpha/beta/rc. For example, 1.0.0-rc1's
+   release notes should go in the 1.0.0 section.
+2. Checkout and update the master branch, create a branch to prepare the
+   release.
 
    ```bash
    git checkout master
@@ -38,8 +43,7 @@ To create a new release of Prefab:
    If releasing from a point other than the HEAD of master, create the branch
    from that point instead.
 
-2. Update the version number and qualifier in gradle.properties.
-3. Add release notes in CHANGELOG.md.
+3. Update the version number and qualifier in gradle.properties.
 4. Test and commit changes:
 
    ```bash
@@ -62,20 +66,36 @@ To create a new release of Prefab:
    The build server will now automatically begin building the release from the
    tag.
 
-7. Update the version number and qualifier again for the next release. Increment
-   the patch component of the version number and clear the qualifier. This next
-   version number will be referred to as `<NEXT_VERSION>` for the remainder of
-   this doc.
-8. Test and commit changes:
+## Publishing the release to Maven
+
+Publishing the artifacts to Maven can only be done by a Googler with the
+permissions to do so. That part of the process is documented at
+http://go/prefab-release-process.
+
+## Updating master after a stable release
+
+After shipping a stable (non-qualified) release, the version number in master
+needs to be updated. The next version should be `<VERSION>` with the patch
+component incremented by one. This version number will be referred to as
+`<NEXT_VERSION>` for the remainder of this doc.
+
+1. Checkout and update the master branch, create a branch to prepare the pull
+   request.
+
+   ```bash
+   git checkout master
+   git pull
+   git checkout -b update-version-<NEXT_VERSION>
+   ```
+
+2. Update the gradle.properties file with the new version number.
+3. Create a new empty section for the new version in CHANGELOG.md.
+4. Test and commit changes:
 
    ```bash
    ./gradlew clean build
    git commit -a -m 'Bump version to <NEXT_VERSION>.'
    ```
 
-9. Send the pull request for both commits, get them reviewed, submit the pull
+5. Send the pull request for the commit, get it reviewed, submit the pull
    request to master.
-
-Publishing the artifacts to Maven can only be done by a Googler with the
-permissions to do so. That part of the process is documented at
-http://go/prefab-release-process.
