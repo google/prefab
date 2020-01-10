@@ -142,7 +142,7 @@ class CMakePluginTest {
             """
             find_package(foo REQUIRED CONFIG)
 
-            add_library(qux::libqux SHARED IMPORTED)
+            add_library(qux::libqux STATIC IMPORTED)
             set_target_properties(qux::libqux PROPERTIES
                 IMPORTED_LOCATION "$quxDir/libs/android.arm64-v8a/libqux.a"
                 INTERFACE_INCLUDE_DIRECTORIES "$quxDir/include"

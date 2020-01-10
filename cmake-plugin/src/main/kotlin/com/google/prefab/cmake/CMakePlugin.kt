@@ -149,9 +149,18 @@ class CMakePlugin(
             val prebuilt = module.getLibraryFor(requirements)
             val escapedLibrary = prebuilt.path.sanitize()
             val escapedHeaders = prebuilt.includePath.sanitize()
+            val prebuiltType: String =
+                when (val extension = prebuilt.path.toFile().extension) {
+                    "so" -> "SHARED"
+                    "a" -> "STATIC"
+                    else -> throw RuntimeException(
+                        "Unrecognized library extension: $extension"
+                    )
+                }
+
             configFile.appendText(
                 """
-                add_library($target SHARED IMPORTED)
+                add_library($target $prebuiltType IMPORTED)
                 set_target_properties($target PROPERTIES
                     IMPORTED_LOCATION "$escapedLibrary"
                     INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
