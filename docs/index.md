@@ -195,9 +195,9 @@ TODO: Verify.
 Note that, except for the first case, the headers for the modules will also be
 made available to the consuming package.
 
-`module_name` specifies the name of the library file without the file extension.
+`library_name` specifies the name of the library file without the file extension.
 This field is optional. If not specified, the library name is assumed to be
-`lib<module name>`.
+`lib<library_name>`.
 
 The `android` and field allows either `export_libraries` or `library_name` to be
 overridden dependening on the target platform. Each subfield follows the same
