@@ -17,8 +17,10 @@
 package com.google.prefab.cli
 
 import com.google.prefab.api.Android
+import com.google.prefab.api.InvalidDirectoryNameException
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.MissingArtifactIDException
+import com.google.prefab.api.MissingPlatformIDException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import com.google.prefab.api.UnsupportedPlatformException
@@ -73,6 +75,32 @@ class PackageTest {
                 Paths.get(
                     this.javaClass.getResource(
                         "packages/unsupported_platform"
+                    ).toURI()
+                )
+            Package(packagePath)
+        }
+    }
+
+    @Test
+    fun `package with invalid directory name does not load`(){
+        assertFailsWith(InvalidDirectoryNameException::class) {
+            val packagePath =
+                Paths.get(
+                    this.javaClass.getResource(
+                        "packages/invalid_directory_name"
+                    ).toURI()
+                )
+            Package(packagePath)
+        }
+    }
+
+    @Test
+    fun `package with missing platform id does not load`() {
+        assertFailsWith(MissingPlatformIDException::class) {
+            val packagePath =
+                Paths.get(
+                    this.javaClass.getResource(
+                        "packages/missing_platform_id"
                     ).toURI()
                 )
             Package(packagePath)
