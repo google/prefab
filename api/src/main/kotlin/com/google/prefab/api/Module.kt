@@ -28,8 +28,39 @@ import java.nio.file.Path
  */
 class UnsupportedPlatformException(module: Module, platformName: String) :
     Exception(
-        "${module.canonicalName} contains artifacts for unsupported platform " +
+        "${module.canonicalName} contains artifacts for an unsupported platform " +
                 "\"$platformName\""
+    )
+
+/**
+ * The module contains a library directory which does not contain a platform ID.
+ *
+ * @param[module] The module with the library directory which is missing the
+ * platform ID.
+ * @param[artifactDirectory] The library directory which is missing the platform
+ * ID.
+ */
+class MissingPlatformIDException(module: Module, artifactDirectory: Path) :
+    Exception(
+        "${module.canonicalName} artifact directory $artifactDirectory"
+                + " does not contain a platform ID. It should have the name"
+                + " format <platform ID>.<artifact ID> e.g. android.x86"
+    )
+
+/**
+ * The module contains a library directory which does not contain an artifact
+ * ID.
+ *
+ * @param[module] The module with the library directory which is missing the
+ * artifact ID.
+ * @param[artifactDirectory] The library directory which is missing the artifact
+ * ID.
+ */
+class MissingArtifactIDException(module: Module, artifactDirectory: Path) :
+    Exception(
+        "${module.canonicalName} artifact directory $artifactDirectory"
+                + " is missing an artifact ID. It should have the name"
+                + " format <platform ID>.<artifact ID> e.g. android.x86"
     )
 
 /**
@@ -38,10 +69,12 @@ class UnsupportedPlatformException(module: Module, platformName: String) :
  * @param[module] The module with the invalid library directory.
  * @param[artifactDirectory] The library directory with the invalid name.
  */
-class MissingArtifactIDException(module: Module, artifactDirectory: Path) :
+class InvalidDirectoryNameException(module: Module,
+                                           artifactDirectory: Path) :
     Exception(
-        "${module.canonicalName} artifact directory has invalid name: " +
-                artifactDirectory
+        "${module.canonicalName} artifact directory $artifactDirectory"
+                + " has an invalid name. It should have the name "
+                + " format <platform ID>.<artifact ID> e.g. android.x86"
     )
 
 /**
@@ -106,6 +139,14 @@ class Module(val path: Path, val pkg: Package) {
             val basename = directory.toPath().fileName.toString()
             val components = basename.split(".", limit = 2)
             if (components.size != 2) {
+                throw InvalidDirectoryNameException(this, directory.toPath())
+            }
+
+            if (components[0].isEmpty()){
+                throw MissingPlatformIDException(this, directory.toPath())
+            }
+
+            if (components[1].isEmpty()){
                 throw MissingArtifactIDException(this, directory.toPath())
             }
 
