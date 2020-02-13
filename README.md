@@ -21,3 +21,8 @@ prebuilt libraries it describes. Prefab is:
 [Build system agnostic]: https://google.github.io/prefab/build-systems.html
 [Cross-platform]: https://google.github.io/prefab/platform-support.html
 [metadata]: https://google.github.io/prefab/#metadata
+
+## Building the command line executable
+
+From the prefab directory run `./gradlew installDist`. This will build and
+install the CLI binary (named `cli`) into  `cli/build/install/cli`.
