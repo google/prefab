@@ -19,15 +19,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath(kotlin("serialization:1.3.50"))
+        classpath(kotlin("serialization:1.3.61"))
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.10.0")
     }
 }
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    kotlin("jvm").version("1.3.50")
-    kotlin("plugin.serialization").version("1.3.50")
+    kotlin("jvm").version("1.3.61")
+    kotlin("plugin.serialization").version("1.3.61")
     distribution
     id("maven-publish")
     id("com.github.jk1.dependency-license-report").version("1.11")
