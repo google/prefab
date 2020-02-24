@@ -36,6 +36,7 @@ dependencies {
 application {
     // Define the main class for the application.
     mainClassName = "com.google.prefab.cli.AppKt"
+    applicationName = "prefab"
 }
 
 tasks {
