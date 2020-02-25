@@ -26,10 +26,6 @@ If applicable, include any error logs (in a [code block](https://help.github.com
 Prefab version: (if not using the latest, please try the latest first) 
 
 Host OS:
-- [ ] Linux
-- [ ] macOS
-- [ ] Windows
-
 Target platform:
 Target ABI:
 Target OS version:
