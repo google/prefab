@@ -218,7 +218,7 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         }
 
         val pathMatcher = library.path.fileSystem.getPathMatcher("glob:*.a")
-        if (pathMatcher.matches(library.path)) {
+        if (pathMatcher.matches(library.path.fileName)) {
             // The dependency is a static library, so its choice of static or
             // shared STL is not actually meaningful; it'll use whatever the
             // user uses. No further checking required.
