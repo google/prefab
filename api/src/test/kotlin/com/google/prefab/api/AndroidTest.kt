@@ -82,32 +82,32 @@ class AndroidTest {
         // A shared library using c++_shared.
         val cxxSharedSharedLib = mockk<PrebuiltLibrary>()
         every { cxxSharedSharedLib.platform } returns cxxShared
-        every { cxxSharedSharedLib.path } returns Paths.get("libfoo.so")
+        every { cxxSharedSharedLib.path } returns Paths.get("libs/libfoo.so")
 
         // A static library using c++_shared.
         val cxxSharedStaticLib = mockk<PrebuiltLibrary>()
         every { cxxSharedStaticLib.platform } returns cxxShared
-        every { cxxSharedStaticLib.path } returns Paths.get("libfoo.a")
+        every { cxxSharedStaticLib.path } returns Paths.get("libs/libfoo.a")
 
         // A shared library using c++_static.
         val cxxStaticSharedLib = mockk<PrebuiltLibrary>()
         every { cxxStaticSharedLib.platform } returns cxxStatic
-        every { cxxStaticSharedLib.path } returns Paths.get("libfoo.so")
+        every { cxxStaticSharedLib.path } returns Paths.get("libs/libfoo.so")
 
         // A static library using c++_static.
         val cxxStaticStaticLib = mockk<PrebuiltLibrary>()
         every { cxxStaticStaticLib.platform } returns cxxStatic
-        every { cxxStaticStaticLib.path } returns Paths.get("libfoo.a")
+        every { cxxStaticStaticLib.path } returns Paths.get("libs/libfoo.a")
 
         // A shared library using gnustl_shared.
         val gnuSharedSharedLib = mockk<PrebuiltLibrary>()
         every { gnuSharedSharedLib.platform } returns gnuShared
-        every { gnuSharedSharedLib.path } returns Paths.get("libfoo.so")
+        every { gnuSharedSharedLib.path } returns Paths.get("libs/libfoo.so")
 
         // A shared library using gnustl_static.
         val gnuSharedStaticLib = mockk<PrebuiltLibrary>()
         every { gnuSharedStaticLib.platform } returns gnuShared
-        every { gnuSharedStaticLib.path } returns Paths.get("libfoo.a")
+        every { gnuSharedStaticLib.path } returns Paths.get("libs/libfoo.a")
 
         // A library using no STL.
         val noneLib = mockk<PrebuiltLibrary>()
