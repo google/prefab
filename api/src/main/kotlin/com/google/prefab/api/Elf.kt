@@ -42,7 +42,7 @@ fun findElfLibrary(directory: Path, name: String): Path {
         )
     } else if (foundLibraries.isEmpty()) {
         throw RuntimeException(
-            "Prebuilt directory contains no library artifacts: " +
+            "Prebuilt directory does not contain $name.a or $name.so: " +
                     directory
         )
     }
