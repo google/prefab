@@ -62,7 +62,9 @@ class Package(val path: Path) {
      * The version of the package
      */
     val version: String? = metadata.version.also {
-        require(it == null || isValidVersionForCMake(it))
+        require(it == null || isValidVersionForCMake(it)) {
+            "version must be compatible with CMake, if present"
+        }
     }
 
     /**
