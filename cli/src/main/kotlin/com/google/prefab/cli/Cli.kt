@@ -101,7 +101,7 @@ open class Cli :
 
     private val output: File by option(
         help = "Output path for generated build system integration."
-    ).file(fileOkay = false).required()
+    ).file(canBeFile = false).required()
 
     private val platform: PlatformConfig by option(
         help = "Target platform. Only 'android' is currently supported."
@@ -110,7 +110,7 @@ open class Cli :
     ).required()
 
     private val rawPackagePaths: List<File> by argument("PACKAGE_PATH").file(
-        fileOkay = false, readable = true
+        canBeFile = false, mustBeReadable = true
     ).multiple(required = true)
 
     /**

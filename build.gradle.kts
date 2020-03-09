@@ -19,15 +19,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath(kotlin("serialization:1.3.61"))
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.10.0")
+        classpath(kotlin("serialization:1.3.70"))
+        classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.10.1")
     }
 }
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    kotlin("jvm").version("1.3.61")
-    kotlin("plugin.serialization").version("1.3.61")
+    kotlin("jvm").version("1.3.70")
+    kotlin("plugin.serialization").version("1.3.70")
     distribution
     id("maven-publish")
     id("com.github.jk1.dependency-license-report").version("1.11")
@@ -68,8 +68,8 @@ subprojects {
         testImplementation(kotlin("test-junit"))
 
         // Use JUnit 5.
-        testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0-M1")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0-M1")
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
     }
 
     publishing {
@@ -85,7 +85,8 @@ subprojects {
         kotlinOptions.allWarningsAsErrors = true
         kotlinOptions.freeCompilerArgs += listOf(
             "-progressive",
-            "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer"
+            "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
+            "-Xopt-in=kotlin.RequiresOptIn"
         )
     }
 }

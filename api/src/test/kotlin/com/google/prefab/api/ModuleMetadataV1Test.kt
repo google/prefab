@@ -16,6 +16,7 @@
 
 package com.google.prefab.api
 
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonDecodingException
 import kotlinx.serialization.parse
@@ -24,6 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@OptIn(UnstableDefault::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ModuleMetadataTest {
     @Test
