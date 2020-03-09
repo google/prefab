@@ -16,6 +16,7 @@
 
 package com.google.prefab.api
 
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.parse
 import java.nio.file.Path
@@ -356,6 +357,7 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
     companion object : PlatformFactoryInterface {
         override val identifier: String = "android"
 
+        @OptIn(UnstableDefault::class)
         override fun fromLibraryDirectory(
             directory: Path
         ): PlatformDataInterface {
