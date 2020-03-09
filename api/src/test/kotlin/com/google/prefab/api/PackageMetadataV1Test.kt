@@ -16,6 +16,7 @@
 
 package com.google.prefab.api
 
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonDecodingException
 import kotlinx.serialization.parse
@@ -24,6 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@OptIn(UnstableDefault::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PackageMetadataTest {
     @Test
@@ -42,7 +44,7 @@ class PackageMetadataTest {
         }
     }
 
-    @Test(expected = AssertionError::class)
+    @Test
     fun `fails if schema_version is not an integer`() {
         assertFailsWith(JsonDecodingException::class) {
             Json.parse<PackageMetadataV1>(
@@ -57,7 +59,7 @@ class PackageMetadataTest {
         }
     }
 
-    @Test(expected = AssertionError::class)
+    @Test
     fun `fails if name is not a string`() {
         assertFailsWith(JsonDecodingException::class) {
             val meta = Json.parse<PackageMetadataV1>(
@@ -89,8 +91,7 @@ class PackageMetadataTest {
         }
     }
 
-    // XFAIL: Can't catch that a list's contained type does not match.
-    @Test(expected = AssertionError::class)
+    @Test
     fun `fails if dependencies is not a list of strings`() {
         assertFailsWith(JsonDecodingException::class) {
             Json.parse<PackageMetadataV1>(
