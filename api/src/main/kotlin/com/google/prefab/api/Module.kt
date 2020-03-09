@@ -16,6 +16,7 @@
 
 package com.google.prefab.api
 
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.parse
 import java.nio.file.Path
@@ -105,6 +106,7 @@ class Module(val path: Path, val pkg: Package) {
     /**
      * The metadata object loaded form module.json.
      */
+    @OptIn(UnstableDefault::class)
     private val metadata: ModuleMetadataV1 = Json.parse(
         path.resolve("module.json").toFile().readText()
     )
