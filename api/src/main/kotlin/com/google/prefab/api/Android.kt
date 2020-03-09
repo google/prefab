@@ -187,7 +187,9 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
 
     private fun stlsAreCompatible(library: PrebuiltLibrary):
             LibraryUsabilityResult {
-        require(library.platform is Android)
+        require(library.platform is Android) {
+            "library must be an Android library"
+        }
 
         // The case not explicitly handled here is the case where the user is
         // statically linking an STL, but it is not exposed in their ABI and
@@ -275,12 +277,16 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
     override fun findBestMatch(
         libraries: List<PrebuiltLibrary>
     ): PrebuiltLibrary {
-        require(libraries.isNotEmpty())
-        require(libraries.all { checkIfUsable(it) is CompatibleLibrary })
+        require(libraries.isNotEmpty()) { "libraries must be non-empty" }
+        require(libraries.all { checkIfUsable(it) is CompatibleLibrary }) {
+            "all libraries must be compatible"
+        }
         val moduleName = libraries.first().module.canonicalName
 
         val allLibraries: List<Pair<PrebuiltLibrary, Android>> = libraries.map {
-            require(it.platform is Android)
+            require(it.platform is Android) {
+                "library must be an android library"
+            }
             Pair(it, it.platform)
         }
 
