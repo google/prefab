@@ -272,6 +272,13 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         }
 
         return stlsAreCompatible(library)
+
+        // TODO: Check for ABI boundaries across NDK major versions.
+        // At present the only known ABI break in the NDK was when the libc++
+        // ABI changed in r11. No one should actually use libc++ in either of
+        // those releases, nor should they be using those releases any more, so
+        // this isn't an urgent check to add. If we introduce more ABI breaks in
+        // the future we'll want to make sure we add checks for those.
     }
 
     override fun findBestMatch(
