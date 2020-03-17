@@ -26,17 +26,18 @@ split into the following packages:
 ## Supported Platforms
 
 At present, only Android targets are supported. Support for desktop Linux is a
-work in progress (TODO: send PR and link), with some outstanding questions about
-exactly what constraints need to be defined for that platform. [Patches] to
-support additional targets are welcome. Unlike build system support, platform
-support cannot be provided as a plugin and must be directly implemented in
-Prefab. This is to avoid the fragmentation of packages that would occur if there
-were multiple implementations of support for a given platform. For example, if
-there were both an `ubuntu` and a `linux-ubuntu` plugin with libraries that are
+[work in progress], with some outstanding questions about exactly what
+constraints need to be defined for that platform. [Patches] to support
+additional targets are welcome. Unlike build system support, platform support
+cannot be provided as a plugin and must be directly implemented in Prefab. This
+is to avoid the fragmentation of packages that would occur if there were
+multiple implementations of support for a given platform. For example, if there
+were both an `ubuntu` and a `linux-ubuntu` plugin with libraries that are
 compatible, their packages would not be mutually usable. Keeping platform
 support centralized avoids this issue.
 
 [Patches]: https://github.com/google/prefab/blob/master/CONTRIBUTING.md
+[work in progress]: https://github.com/google/prefab/pull/90
 
 ### Android
 
@@ -61,8 +62,6 @@ the requested configuration:
 2. API for a dependency cannot be higher than `--os-version`.
 3. STLs must be compatible as defined by
    `com.google.prefab.api.Android::stlsAreCompatible`.
-
-TODO: Implement NDK version ABI boundary checks.
 
 ## Platform API
 

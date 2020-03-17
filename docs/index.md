@@ -24,15 +24,15 @@ prebuilt libraries it describes. Prefab is:
 
 ## Usage
 
-Note: The Android Gradle Plugin natively supports Prefab packages. See TODO for
-more information.
+Note: The Android Gradle Plugin natively supports Prefab packages. See the
+[New Features in Android Studio] page for more information.
+
+[New Features in Android Studio]: https://developer.android.com/studio/preview/features#native-dependencies
 
 Prefab is a command line tool the operates on the packages described in this
 document. At least one package path must be given, and each package path should
 point to the directory structure described in [Package
 Structure](#package-structure).
-
-TODO: Improve usage message.
 
 ```text
 Usage: prefab [OPTIONS] PACKAGE_PATH...
@@ -54,11 +54,28 @@ Options:
   -h, --help           Show this message and exit
 ```
 
-TODO: Example.
+For example, if your app is using CMake, c++_shared, NDK r21, and has a
+minSdkVersion of 21, you can generate [CMake packages] for your dependencies in
+the `deps` directory with the following commands:
 
-## Authoring
+```bash
+$ prefab --output out/arm64-v8a --build-system cmake --platform android \
+    --abi arm64-v8a --os-version 21 --ndk-version 21 --stl c++_shared deps
+$ prefab --output out/armeabi-v7a --build-system cmake --platform android \
+    --abi armeabi-v7a --os-version 21 --ndk-version 21 --stl c++_shared deps
+$ prefab --output out/x86 --build-system cmake --platform android \
+    --abi x86 --os-version 21 --ndk-version 21 --stl c++_shared deps
+$ prefab --output out/x86_64 --build-system cmake --platform android \
+    --abi x86_64 --os-version 21 --ndk-version 21 --stl c++_shared deps
+```
 
-TODO: Write authoring guide.
+This generates [CMake packages] that can be imported into your build with
+[find_package]. See the [Build System Support in Prefab] page for more
+information.
+
+[CMake packages]: https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html
+[find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
+[Build System Support in Prefab]: build-systems.md
 
 ## Package Structure {#package-structure}
 
@@ -114,7 +131,9 @@ The include directory within each platform's library directory is optional. If
 present, that include path will be used instead of the module headers for that
 platform.
 
-TODO: Example.
+For examples, see the [test packages] in the source.
+
+[test packages]: https://github.com/google/prefab/tree/master/cli/src/test/resources/com/google/prefab/cli/packages
 
 ## Metadata {#metadata}
 
@@ -158,7 +177,7 @@ version 1.1.1a should be written as 1.1.1.1.
 Package's `name`) that this Package depends on. All dependent packages must be
 available to Prefab during build script generation.
 
-TODO: Example.
+For examples, see the prefab.json files in the [test packages].
 
 ### Module Metadata {#module-metadata}
 
@@ -191,7 +210,6 @@ intra-package references, or inter-package references.
 | `:foo`      | Consumers will link the `foo` module from this package.      |
 | `//bar:baz` | Consumers will link the `baz` module from the `bar` package. |
 
-TODO: Verify.
 Note that, except for the first case, the headers for the modules will also be
 made available to the consuming package.
 
@@ -204,4 +222,4 @@ overridden dependening on the target platform. Each subfield follows the same
 rules of the main properties with the same name. If specified, the
 platform-specific properties override the generic properties.
 
-TODO: Example.
+For examples, see the module.json files in the [test packages].
