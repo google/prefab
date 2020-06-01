@@ -78,7 +78,7 @@ class CMakePlugin(
         } else {
             outputDirectory
         }
-        val configFile = pkgDirectory.resolve("${pkg.name}-config.cmake")
+        val configFile = pkgDirectory.resolve("${pkg.name}Config.cmake")
         for (dep in pkg.dependencies.sorted()) {
             emitDependency(dep, configFile)
         }
@@ -91,7 +91,7 @@ class CMakePlugin(
         if (pkg.version != null) {
             emitVersionFile(
                 pkg,
-                pkgDirectory.resolve("${pkg.name}-config-version.cmake")
+                pkgDirectory.resolve("${pkg.name}ConfigVersion.cmake")
             )
         }
     }
