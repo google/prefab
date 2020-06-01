@@ -50,7 +50,7 @@ data class PlatformSpecificModuleMetadataV1(
 @Serializable
 data class ModuleMetadataV1(
     @SerialName("export_libraries")
-    val exportLibraries: List<String>,
+    val exportLibraries: List<String> = emptyList(),
     @SerialName("library_name")
     val libraryName: String? = null,
     // Allowing per-platform overrides before we support more than a single

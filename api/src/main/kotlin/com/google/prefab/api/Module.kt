@@ -107,9 +107,15 @@ class Module(val path: Path, val pkg: Package) {
      * The metadata object loaded form module.json.
      */
     @OptIn(UnstableDefault::class)
-    private val metadata: ModuleMetadataV1 = Json.parse(
-        path.resolve("module.json").toFile().readText()
-    )
+    private val metadata: ModuleMetadataV1 = path.resolve("module.json").let {
+        if (it.toFile().exists()) {
+            Json.parse(
+                path.resolve("module.json").toFile().readText()
+            )
+        } else {
+            ModuleMetadataV1()
+        }
+    }
 
     /**
      * The name of the module.

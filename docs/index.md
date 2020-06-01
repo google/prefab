@@ -108,7 +108,8 @@ A Package has the following directory layout:
 ```
 
 prefab.json is the [package level metadata](#package-metadata) and module.json
-is the [module level metadata](#module-metadata). These are required.
+is the [module level metadata](#module-metadata). prefab.json is required, but
+module.json is optional.
 
 The per-module include directory is optional. If present, the directory will be
 automatically added to the consumer's header search path.
@@ -202,7 +203,7 @@ be extended to include required compiler flags such as a minimum C++ version.
 ```
 
 `export_libraries` may specify either literal arguments to be used as-is,
-intra-package references, or inter-package references.
+intra-package references, or inter-package references. This field is optional.
 
 | Value       | Result                                                       |
 | ----------- | ------------------------------------------------------------ |
