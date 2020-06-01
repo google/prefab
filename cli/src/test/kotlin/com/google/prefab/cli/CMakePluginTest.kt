@@ -46,6 +46,15 @@ class CMakePluginTest {
             toFile().apply { deleteOnExit() }
         }
 
+    private fun cmakeConfigName(packageName: String): String =
+        "${packageName}Config"
+
+    private fun cmakeConfigFile(packageName: String): String =
+        "${cmakeConfigName(packageName)}.cmake"
+
+    private fun cmakeVersionFile(packageName: String): String =
+        "${cmakeConfigName(packageName)}Version.cmake"
+
     @Test
     fun `multi-target generations are rejected`() {
         val generator = CMakePlugin(staleOutputDir.toFile(), emptyList())
@@ -82,17 +91,17 @@ class CMakePluginTest {
 
         val archDir = outputDirectory.resolve("lib/aarch64-linux-android/cmake")
         val fooConfigFile =
-            archDir.resolve("${foo.name}/${foo.name}-config.cmake").toFile()
+            archDir.resolve("${foo.name}/${cmakeConfigFile(foo.name)}").toFile()
         val fooVersionFile = archDir.resolve(
-            "${foo.name}/${foo.name}-config-version.cmake"
+            "${foo.name}/${cmakeVersionFile(foo.name)}"
         ).toFile()
         assertTrue(fooConfigFile.exists())
         assertTrue(fooVersionFile.exists())
 
         val quxConfigFile =
-            archDir.resolve("${qux.name}/${qux.name}-config.cmake").toFile()
+            archDir.resolve("${qux.name}/${cmakeConfigFile(qux.name)}").toFile()
         val quxVersionFile = archDir.resolve(
-            "${qux.name}/${qux.name}-config-version.cmake"
+            "${qux.name}/${cmakeVersionFile(qux.name)}"
         ).toFile()
         assertTrue(quxConfigFile.exists())
         assertTrue(quxVersionFile.exists())
@@ -170,8 +179,9 @@ class CMakePluginTest {
 
     @Test
     fun `header only module works`() {
-        val packagePath =
-            Paths.get(this.javaClass.getResource("packages/header_only").toURI())
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/header_only").toURI()
+        )
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21))
@@ -179,9 +189,10 @@ class CMakePluginTest {
 
         val name = pkg.name
         val archDir = outputDirectory.resolve("lib/aarch64-linux-android/cmake")
-        val configFile = archDir.resolve("$name/$name-config.cmake").toFile()
+        val configFile =
+            archDir.resolve("$name/${cmakeConfigFile(name)}").toFile()
         val versionFile =
-            archDir.resolve("$name/$name-config-version.cmake").toFile()
+            archDir.resolve("$name/${cmakeVersionFile(name)}").toFile()
         assertTrue(configFile.exists())
         assertTrue(versionFile.exists())
 
@@ -233,9 +244,10 @@ class CMakePluginTest {
 
         val name = pkg.name
         var archDir = outputDirectory.resolve("lib/aarch64-linux-android/cmake")
-        var configFile = archDir.resolve("$name/$name-config.cmake").toFile()
+        var configFile =
+            archDir.resolve("$name/${cmakeConfigFile(name)}").toFile()
         val versionFile =
-            archDir.resolve("$name/$name-config-version.cmake").toFile()
+            archDir.resolve("$name/${cmakeVersionFile(name)}").toFile()
         assertTrue(configFile.exists())
         // No version is provided for this package, so we shouldn't provide a
         // version file.
@@ -263,7 +275,7 @@ class CMakePluginTest {
         )
 
         archDir = outputDirectory.resolve("lib/x86_64-linux-android/cmake")
-        configFile = archDir.resolve("$name/$name-config.cmake").toFile()
+        configFile = archDir.resolve("$name/${cmakeConfigFile(name)}").toFile()
 
         assertEquals(
             """
@@ -281,17 +293,18 @@ class CMakePluginTest {
 
     @Test
     fun `old NDKs use non-arch specific layout`() {
-        val packagePath =
-            Paths.get(this.javaClass.getResource("packages/header_only").toURI())
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/header_only").toURI()
+        )
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
         )
 
         val name = pkg.name
-        val configFile = outputDirectory.resolve("$name-config.cmake").toFile()
+        val configFile = outputDirectory.resolve(cmakeConfigFile(name)).toFile()
         val versionFile =
-            outputDirectory.resolve("$name-config-version.cmake").toFile()
+            outputDirectory.resolve(cmakeVersionFile(name)).toFile()
         assertTrue(configFile.exists())
         assertTrue(versionFile.exists())
 
