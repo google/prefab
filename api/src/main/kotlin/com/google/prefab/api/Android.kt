@@ -36,6 +36,19 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
     PlatformDataInterface {
     override val targetTriple: String = abi.triple
 
+    /**
+     * The actual API encoded in the abi.json.
+     *
+     * For LP64 ABIs, we pull this number up to 21 since there are no LP64 API
+     * levels before that. We should probably make that case an error, but doing
+     * so would break existing packages. We should do that when there's a schema
+     * revision.
+     *
+     * For now, we stash the original API level so we can emit a more useful
+     * error message if a duplicate match was only a duplicate because of this.
+     */
+    private val originalApi = api
+
     val api: Int = when (abi) {
         Abi.Arm32, Abi.X86 -> api
         Abi.Arm64, Abi.X86_64 -> max(api, 21)
@@ -350,12 +363,19 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         // There may be cases where the library author has done something like
         // have both a c++_static and c++_shared variant of a static library.
         // There's no need to have both in this case.
+        val redundantLibsStr =
+            ndkVersionMatches.joinToString(separator = "\n") { (lib, platform) ->
+                if (platform.api != platform.originalApi) {
+                    "${lib.directory} (note: metadata API of " +
+                            "${platform.originalApi} overridden by ABI " +
+                            "default of ${platform.api})"
+                } else {
+                    lib.directory.toString()
+                }
+            }
         throw RuntimeException(
             "Unable to resolve a single library match for $moduleName. The " +
-                    "following libraries are redundant:\n" +
-                    ndkVersionMatches.joinToString(separator = "\n") {
-                        it.first.directory.toString()
-                    }
+                    "following libraries are redundant:\n$redundantLibsStr"
         )
     }
 
