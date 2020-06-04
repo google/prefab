@@ -20,6 +20,7 @@ import com.google.prefab.api.Android
 import com.google.prefab.api.BuildSystemInterface
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.Module
+import com.google.prefab.api.NoMatchingLibraryException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import java.io.File
@@ -144,13 +145,22 @@ class NdkBuildPlugin(
                 if (referredModule.isHeaderOnly) {
                     staticLibraries.add(referredModule.name)
                 } else {
-                    val prebuilt = referredModule.getLibraryFor(requirement)
-                    when (val extension = prebuilt.path.toFile().extension) {
-                        "so" -> sharedLibraries.add(referredModule.name)
-                        "a" -> staticLibraries.add(referredModule.name)
-                        else -> throw RuntimeException(
-                            "Unrecognized library extension: $extension"
-                        )
+                    try {
+                        val prebuilt = referredModule.getLibraryFor(requirement)
+                        when (val extension =
+                            prebuilt.path.toFile().extension) {
+                            "so" -> sharedLibraries.add(referredModule.name)
+                            "a" -> staticLibraries.add(referredModule.name)
+                            else -> throw RuntimeException(
+                                "Unrecognized library extension: $extension"
+                            )
+                        }
+                    } catch (ex: NoMatchingLibraryException) {
+                        System.err.println(
+                            "Skipping ${module.canonicalName} because it " +
+                                    "depends on an incompatible library:")
+                        System.err.print(ex)
+                        return
                     }
                 }
             }
@@ -184,32 +194,38 @@ class NdkBuildPlugin(
                 """.trimIndent()
             )
         } else {
-            val prebuilt = module.getLibraryFor(requirement)
-            val escapedLibrary = prebuilt.path.sanitize()
-            val escapedHeaders = prebuilt.includePath.sanitize()
-            val prebuiltType: String =
-                when (val extension = prebuilt.path.toFile().extension) {
-                    "so" -> "PREBUILT_SHARED_LIBRARY"
-                    "a" -> "PREBUILT_STATIC_LIBRARY"
-                    else -> throw RuntimeException(
-                        "Unrecognized library extension: $extension"
-                    )
-                }
+            try {
+                val prebuilt = module.getLibraryFor(requirement)
+                val escapedLibrary = prebuilt.path.sanitize()
+                val escapedHeaders = prebuilt.includePath.sanitize()
+                val prebuiltType: String =
+                    when (val extension = prebuilt.path.toFile().extension) {
+                        "so" -> "PREBUILT_SHARED_LIBRARY"
+                        "a" -> "PREBUILT_STATIC_LIBRARY"
+                        else -> throw RuntimeException(
+                            "Unrecognized library extension: $extension"
+                        )
+                    }
 
-            androidMk.appendText(
-                """
-                include $(CLEAR_VARS)
-                LOCAL_MODULE := ${module.name}
-                LOCAL_SRC_FILES := $escapedLibrary
-                LOCAL_EXPORT_C_INCLUDES := $escapedHeaders
-                LOCAL_EXPORT_SHARED_LIBRARIES :=$exportSharedLibraries
-                LOCAL_EXPORT_STATIC_LIBRARIES :=$exportStaticLibraries
-                LOCAL_EXPORT_LDLIBS :=$exportLdLibs
-                include $($prebuiltType)
-    
-    
-                """.trimIndent()
-            )
+                androidMk.appendText(
+                    """
+                    include $(CLEAR_VARS)
+                    LOCAL_MODULE := ${module.name}
+                    LOCAL_SRC_FILES := $escapedLibrary
+                    LOCAL_EXPORT_C_INCLUDES := $escapedHeaders
+                    LOCAL_EXPORT_SHARED_LIBRARIES :=$exportSharedLibraries
+                    LOCAL_EXPORT_STATIC_LIBRARIES :=$exportStaticLibraries
+                    LOCAL_EXPORT_LDLIBS :=$exportLdLibs
+                    include $($prebuiltType)
+
+
+                    """.trimIndent()
+                )
+            } catch (ex: NoMatchingLibraryException) {
+                // Libraries that do not match our requirements should be logged
+                // and ignored.
+                System.err.println(ex)
+            }
         }
     }
 

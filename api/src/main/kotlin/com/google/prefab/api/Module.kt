@@ -179,13 +179,15 @@ class Module(val path: Path, val pkg: Package) {
      * Finds the library matching the given
      * [platform requirements][PlatformDataInterface].
      *
-     * Note that currently this returns the *first* match in an arbitrary sort
-     * order. Later this will be updated to return the best match, if there is
-     * more than one compatible library.
+     * If more than one library is a valid match, the best match will be
+     * returned. The criteria for finding the best match are defined by
+     * [PlatformDataInterface.findBestMatch].
      *
      * @param[platformData] The build requirements to find a library for.
-     * @return The [PrebuiltLibrary] matching the given requirements, or null if
-     * there is no match.
+     * @throws[NoMatchingLibraryException] No library compatible with
+     * [platformData] was found. Incompatible modules should typically be logged
+     * and skipped by the build system plugin.
+     * @return The [PrebuiltLibrary] matching the given requirements.
      */
     fun getLibraryFor(platformData: PlatformDataInterface): PrebuiltLibrary {
         val compatible = mutableListOf<PrebuiltLibrary>()
@@ -197,6 +199,12 @@ class Module(val path: Path, val pkg: Package) {
             }
         }
         if (compatible.isEmpty()) {
+            // TODO: https://github.com/google/prefab/issues/107
+            // As currently implemented it is up to each build system plugin
+            // whether or not missing matches are skipped or an error.
+            //
+            // Some refactoring of the build system plugin API could make it the
+            // CLI's responsibility to set that policy and print the results.
             throw NoMatchingLibraryException(
                 this, rejections.toSortedMap(
                     compareBy { it.path.parent.fileName })
