@@ -490,4 +490,88 @@ class NdkBuildPluginTest {
             """.trimIndent(), androidMk.readText()
         )
     }
+
+    @Test
+    fun `mixed static and shared libraries are both exposed when compatible`() {
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/static_and_shared").toURI()
+        )
+        val pkg = Package(packagePath)
+        NdkBuildPlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
+        )
+
+        val androidMk =
+            outputDirectory.resolve("static_and_shared/Android.mk").toFile()
+        assertTrue(androidMk.exists())
+
+        val fooDir = packagePath.resolve("modules/foo").sanitize()
+        val fooStaticDir = packagePath.resolve("modules/foo_static").sanitize()
+        assertEquals(
+            """
+            LOCAL_PATH := $(call my-dir)
+
+            ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := foo
+            LOCAL_SRC_FILES := $fooDir/libs/android.shared/libfoo.so
+            LOCAL_EXPORT_C_INCLUDES := $fooDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := foo_static
+            LOCAL_SRC_FILES := $fooStaticDir/libs/android.static/libfoo.a
+            LOCAL_EXPORT_C_INCLUDES := $fooStaticDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_STATIC_LIBRARY)
+
+            endif  # arm64-v8a
+
+
+            """.trimIndent(), androidMk.readText()
+        )
+    }
+
+    @Test
+    fun `incompatible libraries are skipped for static STL`() {
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/static_and_shared").toURI()
+        )
+        val pkg = Package(packagePath)
+        NdkBuildPlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxStatic, 18))
+        )
+
+        val androidMk =
+            outputDirectory.resolve("static_and_shared/Android.mk").toFile()
+        assertTrue(androidMk.exists())
+
+        val fooStaticDir = packagePath.resolve("modules/foo_static").sanitize()
+        assertEquals(
+            """
+            LOCAL_PATH := $(call my-dir)
+
+            ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := foo_static
+            LOCAL_SRC_FILES := $fooStaticDir/libs/android.static/libfoo.a
+            LOCAL_EXPORT_C_INCLUDES := $fooStaticDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_STATIC_LIBRARY)
+
+            endif  # arm64-v8a
+
+
+            """.trimIndent(), androidMk.readText()
+        )
+    }
 }

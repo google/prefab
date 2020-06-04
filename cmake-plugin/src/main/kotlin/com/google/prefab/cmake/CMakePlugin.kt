@@ -20,6 +20,7 @@ import com.google.prefab.api.Android
 import com.google.prefab.api.BuildSystemInterface
 import com.google.prefab.api.LibraryReference
 import com.google.prefab.api.Module
+import com.google.prefab.api.NoMatchingLibraryException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import java.io.File
@@ -146,30 +147,36 @@ class CMakePlugin(
                 """.trimIndent()
             )
         } else {
-            val prebuilt = module.getLibraryFor(requirements)
-            val escapedLibrary = prebuilt.path.sanitize()
-            val escapedHeaders = prebuilt.includePath.sanitize()
-            val prebuiltType: String =
-                when (val extension = prebuilt.path.toFile().extension) {
-                    "so" -> "SHARED"
-                    "a" -> "STATIC"
-                    else -> throw RuntimeException(
-                        "Unrecognized library extension: $extension"
+            try {
+                val prebuilt = module.getLibraryFor(requirements)
+                val escapedLibrary = prebuilt.path.sanitize()
+                val escapedHeaders = prebuilt.includePath.sanitize()
+                val prebuiltType: String =
+                    when (val extension = prebuilt.path.toFile().extension) {
+                        "so" -> "SHARED"
+                        "a" -> "STATIC"
+                        else -> throw RuntimeException(
+                            "Unrecognized library extension: $extension"
+                        )
+                    }
+
+                configFile.appendText(
+                    """
+                    add_library($target $prebuiltType IMPORTED)
+                    set_target_properties($target PROPERTIES
+                        IMPORTED_LOCATION "$escapedLibrary"
+                        INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
+                        INTERFACE_LINK_LIBRARIES "$libraries"
                     )
-                }
 
-            configFile.appendText(
-                """
-                add_library($target $prebuiltType IMPORTED)
-                set_target_properties($target PROPERTIES
-                    IMPORTED_LOCATION "$escapedLibrary"
-                    INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
-                    INTERFACE_LINK_LIBRARIES "$libraries"
+
+                    """.trimIndent()
                 )
-
-
-                """.trimIndent()
-            )
+            } catch (ex: NoMatchingLibraryException) {
+                // Libraries that do not match our requirements should be logged
+                // and ignored.
+                System.err.println(ex)
+            }
         }
     }
 

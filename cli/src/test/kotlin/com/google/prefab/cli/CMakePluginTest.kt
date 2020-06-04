@@ -343,4 +343,70 @@ class CMakePluginTest {
             """.trimIndent(), versionFile.readText()
         )
     }
+
+    @Test
+    fun `mixed static and shared libraries are both exposed when compatible`() {
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/static_and_shared").toURI()
+        )
+        val pkg = Package(packagePath)
+        CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
+        )
+
+        val configFile =
+            outputDirectory.resolve(cmakeConfigFile(pkg.name)).toFile()
+        assertTrue(configFile.exists())
+
+        val fooDir = packagePath.resolve("modules/foo").sanitize()
+        val fooStaticDir = packagePath.resolve("modules/foo_static").sanitize()
+        assertEquals(
+            """
+            add_library(static_and_shared::foo SHARED IMPORTED)
+            set_target_properties(static_and_shared::foo PROPERTIES
+                IMPORTED_LOCATION "$fooDir/libs/android.shared/libfoo.so"
+                INTERFACE_INCLUDE_DIRECTORIES "$fooDir/include"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+
+            add_library(static_and_shared::foo_static STATIC IMPORTED)
+            set_target_properties(static_and_shared::foo_static PROPERTIES
+                IMPORTED_LOCATION "$fooStaticDir/libs/android.static/libfoo.a"
+                INTERFACE_INCLUDE_DIRECTORIES "$fooStaticDir/include"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+
+
+            """.trimIndent(), configFile.readText()
+        )
+    }
+
+    @Test
+    fun `incompatible libraries are skipped for static STL`() {
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/static_and_shared").toURI()
+        )
+        val pkg = Package(packagePath)
+        CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxStatic, 18))
+        )
+
+        val configFile =
+            outputDirectory.resolve(cmakeConfigFile(pkg.name)).toFile()
+        assertTrue(configFile.exists())
+
+        val fooStaticDir = packagePath.resolve("modules/foo_static").sanitize()
+        assertEquals(
+            """
+            add_library(static_and_shared::foo_static STATIC IMPORTED)
+            set_target_properties(static_and_shared::foo_static PROPERTIES
+                IMPORTED_LOCATION "$fooStaticDir/libs/android.static/libfoo.a"
+                INTERFACE_INCLUDE_DIRECTORIES "$fooStaticDir/include"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+
+
+            """.trimIndent(), configFile.readText()
+        )
+    }
 }
