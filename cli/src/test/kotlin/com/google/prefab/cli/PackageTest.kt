@@ -69,6 +69,26 @@ class PackageTest {
     }
 
     @Test
+    fun `can load package with unexpected files`() {
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/has_unexpected_files").toURI()
+        )
+        val pkg = Package(packagePath)
+        assertEquals(packagePath, pkg.path)
+        assertEquals("has_unexpected_files", pkg.name)
+        assertEquals(emptyList(), pkg.dependencies)
+
+        assertEquals(1, pkg.modules.size)
+
+        val bar = pkg.modules.single()
+
+        assertEquals("bar", bar.name)
+        assertEquals(packagePath.resolve("modules/bar"), bar.path)
+        assertEquals("libbar", bar.libraryNameForPlatform(android))
+        assertEquals(emptyList(), bar.linkLibsForPlatform(android))
+    }
+
+    @Test
     fun `package with unsupported platforms does not load`() {
         assertFailsWith(UnsupportedPlatformException::class) {
             val packagePath =

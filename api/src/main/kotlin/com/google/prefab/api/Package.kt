@@ -78,7 +78,18 @@ class Package(val path: Path) {
      * The list of modules in this package.
      */
     val modules: List<Module> =
-        moduleDir.listFiles()?.map { Module(it.toPath(), this) }
+        // Some file browsers helpfully create extra hidden files in any
+        // directory they view. It may have been better to just ignore anything
+        // without a module.json, but https://github.com/google/prefab/pull/106
+        // made module.json optional, so technically any directory is a valid
+        // module now and we need a new schema revision to change that behavior.
+        // We could alternatively add an explicit module list to prefab.json,
+        // but that would also require a new schema revision.
+        //
+        // For now, just ignore all files (fixes the .DS_Store case) and any
+        // hidden directories (just in case).
+        moduleDir.listFiles()?.filter { it.isDirectory && !it.isHidden }
+            ?.map { Module(it.toPath(), this) }
             ?: throw RuntimeException(
                 "Unable to retrieve file list for $moduleDir"
             )
