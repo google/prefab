@@ -16,22 +16,20 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonDecodingException
-import kotlinx.serialization.parse
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-@OptIn(UnstableDefault::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ModuleMetadataTest {
     @Test
     fun `fails if object has unknown keys`() {
-        assertFailsWith(JsonDecodingException::class) {
-            Json.parse<ModuleMetadataV1>(
+        assertFailsWith(SerializationException::class) {
+            Json.decodeFromString<ModuleMetadataV1>(
                 """
                 {
                     "export_libraries": [],
@@ -44,7 +42,7 @@ class ModuleMetadataTest {
 
     @Test
     fun `minimum valid metadata loads correctly`() {
-        val moduleMetadata = Json.parse<ModuleMetadataV1>(
+        val moduleMetadata = Json.decodeFromString<ModuleMetadataV1>(
             """
             {
                 "export_libraries": []
@@ -59,7 +57,7 @@ class ModuleMetadataTest {
 
     @Test
     fun `metadata with no platform specific data loads correctly`() {
-        val moduleMetadata = Json.parse<ModuleMetadataV1>(
+        val moduleMetadata = Json.decodeFromString<ModuleMetadataV1>(
             """
             {
                 "export_libraries": ["-lm"],
@@ -75,7 +73,7 @@ class ModuleMetadataTest {
 
     @Test
     fun `metadata with partial platform specific data loads correctly`() {
-        val moduleMetadata = Json.parse<ModuleMetadataV1>(
+        val moduleMetadata = Json.decodeFromString<ModuleMetadataV1>(
             """
             {
                 "export_libraries": [],
@@ -96,7 +94,7 @@ class ModuleMetadataTest {
 
     @Test
     fun `metadata will all values set loads correctly`() {
-        val moduleMetadata = Json.parse<ModuleMetadataV1>(
+        val moduleMetadata = Json.decodeFromString<ModuleMetadataV1>(
             """
             {
                 "export_libraries": [":bar"],

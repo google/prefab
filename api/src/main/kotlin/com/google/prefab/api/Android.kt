@@ -16,9 +16,8 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.parse
 import java.nio.file.Path
 import kotlin.math.max
 
@@ -315,7 +314,8 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         // the rely on system APIs not available in earlier API levels, and may
         // be smaller since libandroid_support is only required on very old API
         // levels.
-        val bestApiLevel = allLibraries.maxBy { it.second.api }!!.second.api
+        val bestApiLevel =
+            allLibraries.maxByOrNull { it.second.api }!!.second.api
         val bestApiLevelMatches = allLibraries.filter { (_, reqs) ->
             reqs.api == bestApiLevel
         }
@@ -332,10 +332,10 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         // module, clamp it to the supported range. Return an exact match for
         // the clamped version.
         assert(bestApiLevelMatches.isNotEmpty())
-        val minNdkVersion = bestApiLevelMatches.minBy {
+        val minNdkVersion = bestApiLevelMatches.minByOrNull {
             it.second.ndkMajorVersion
         }!!.second.ndkMajorVersion
-        val maxNdkVersion = bestApiLevelMatches.maxBy {
+        val maxNdkVersion = bestApiLevelMatches.maxByOrNull {
             it.second.ndkMajorVersion
         }!!.second.ndkMajorVersion
         val clamped =
@@ -390,11 +390,10 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
     companion object : PlatformFactoryInterface {
         override val identifier: String = "android"
 
-        @OptIn(UnstableDefault::class)
         override fun fromLibraryDirectory(
             directory: Path
         ): PlatformDataInterface {
-            val metadata = Json.parse<AndroidAbiMetadata>(
+            val metadata = Json.decodeFromString<AndroidAbiMetadata>(
                 directory.toFile().resolve("abi.json").readText()
             )
 

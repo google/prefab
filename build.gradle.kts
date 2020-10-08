@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-buildscript {
-    dependencies {
-        classpath(kotlin("serialization:1.3.72"))
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.10.1")
-    }
-}
+/**
+ * Project Kotlin version.
+ */
+val kotlinVersion: String = "1.4.10"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    kotlin("jvm").version("1.3.72")
-    kotlin("plugin.serialization").version("1.3.72")
+    kotlin("jvm").version("1.4.10")
+    kotlin("plugin.serialization").version("1.4.10")
     distribution
     id("maven-publish")
     id("com.github.jk1.dependency-license-report").version("1.14")
@@ -83,16 +80,11 @@ subprojects {
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
         kotlinOptions.allWarningsAsErrors = true
-        kotlinOptions.freeCompilerArgs += listOf(
-            "-progressive",
-            "-Xuse-experimental=kotlinx.serialization.ImplicitReflectionSerializer",
-            "-Xopt-in=kotlin.RequiresOptIn"
-        )
     }
 }
 
 tasks {
-    val dokka by getting(DokkaTask::class) {
+    dokka {
         outputFormat = "html"
         outputDirectory = "$buildDir/dokka"
         subProjects = subprojects.map { it.name }
@@ -104,6 +96,13 @@ tasks {
 
 licenseReport {
     allowedLicensesFile = projectDir.resolve("config/allowed_licenses.json")
+    excludes = listOf(
+        // This isn't a real dependency, it's only used to inject the real
+        // dependency based on the platform. The real dependency
+        // (kotlinx-serialization-json-jvm) passes the license check, but the
+        // no-op dependency has no license information.
+        "org.jetbrains.kotlinx:kotlinx-serialization-json"
+    ).toTypedArray()
 }
 
 tasks.named("check") {

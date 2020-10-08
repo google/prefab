@@ -15,7 +15,7 @@
  */
 
 dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
     testImplementation("io.mockk:mockk:1.10.0")
 }
 

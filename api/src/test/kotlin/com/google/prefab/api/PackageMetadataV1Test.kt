@@ -16,22 +16,20 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonDecodingException
-import kotlinx.serialization.parse
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-@OptIn(UnstableDefault::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PackageMetadataTest {
     @Test
     fun `fails if object has unknown keys`() {
-        assertFailsWith(JsonDecodingException::class) {
-            Json.parse<PackageMetadataV1>(
+        assertFailsWith(SerializationException::class) {
+            Json.decodeFromString<PackageMetadataV1>(
                 """
                 {
                     "schema_version": 1,
@@ -46,8 +44,8 @@ class PackageMetadataTest {
 
     @Test
     fun `fails if schema_version is not an integer`() {
-        assertFailsWith(JsonDecodingException::class) {
-            Json.parse<PackageMetadataV1>(
+        assertFailsWith(SerializationException::class) {
+            Json.decodeFromString<PackageMetadataV1>(
                 """
                 {
                     "schema_version": 1.0,
@@ -61,8 +59,8 @@ class PackageMetadataTest {
 
     @Test
     fun `fails if name is not a string`() {
-        assertFailsWith(JsonDecodingException::class) {
-            val meta = Json.parse<PackageMetadataV1>(
+        assertFailsWith(SerializationException::class) {
+            val meta = Json.decodeFromString<PackageMetadataV1>(
                 """
                 {
                     "schema_version": 1,
@@ -78,8 +76,8 @@ class PackageMetadataTest {
 
     @Test
     fun `fails if dependencies is not a list`() {
-        assertFailsWith(JsonDecodingException::class) {
-            Json.parse<PackageMetadataV1>(
+        assertFailsWith(SerializationException::class) {
+            Json.decodeFromString<PackageMetadataV1>(
                 """
                 {
                     "schema_version": 1,
@@ -93,8 +91,8 @@ class PackageMetadataTest {
 
     @Test
     fun `fails if dependencies is not a list of strings`() {
-        assertFailsWith(JsonDecodingException::class) {
-            Json.parse<PackageMetadataV1>(
+        assertFailsWith(SerializationException::class) {
+            Json.decodeFromString<PackageMetadataV1>(
                 """
                 {
                     "schema_version": 1,
@@ -108,7 +106,7 @@ class PackageMetadataTest {
 
     @Test
     fun `valid metadata loads correctly`() {
-        val packageMetadata = Json.parse<PackageMetadataV1>(
+        val packageMetadata = Json.decodeFromString<PackageMetadataV1>(
             """
             {
                 "schema_version": 1,

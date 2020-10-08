@@ -16,9 +16,8 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.parse
 import java.io.File
 import java.nio.file.Path
 
@@ -40,15 +39,15 @@ class Package(val path: Path) {
     /**
      * The metadata object loaded from the prefab.json.
      */
-    @OptIn(UnstableDefault::class)
-    private val metadata: PackageMetadataV1 = Json.parse<PackageMetadataV1>(
-        path.resolve("prefab.json").toFile().readText()
-    ).also {
-        require(it.schemaVersion == 1) {
-            "Only schema_version 1 is supported. ${it.name} uses version " +
-                    "${it.schemaVersion}."
+    private val metadata: PackageMetadataV1 =
+        Json.decodeFromString<PackageMetadataV1>(
+            path.resolve("prefab.json").toFile().readText()
+        ).also {
+            require(it.schemaVersion == 1) {
+                "Only schema_version 1 is supported. ${it.name} uses version " +
+                        "${it.schemaVersion}."
+            }
         }
-    }
 
     /**
      * The name of the package.
