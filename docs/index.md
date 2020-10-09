@@ -93,7 +93,7 @@ directory.
 A Package has the following directory layout:
 
 ```text
-<package name>/
+<package directory>/
     prefab.json
     modules/
         <module name>/
@@ -106,6 +106,10 @@ A Package has the following directory layout:
                 ...
         ...
 ```
+
+`<package directory>` can be anything. When the prefab package is contained
+within an Android [AAR], the Android Gradle Plugin requires that the package
+directory is named `prefab`.
 
 prefab.json is the [package level metadata](#package-metadata) and module.json
 is the [module level metadata](#module-metadata). prefab.json is required, but
