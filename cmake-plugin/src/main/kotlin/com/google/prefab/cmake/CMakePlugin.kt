@@ -137,7 +137,7 @@ class CMakePlugin(
             val escapedHeaders = module.includePath.sanitize()
             configFile.appendText(
                 """
-                add_library($target INTERFACE)
+                add_library($target INTERFACE IMPORTED)
                 set_target_properties($target PROPERTIES
                     INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
                     INTERFACE_LINK_LIBRARIES "$libraries"
