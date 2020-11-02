@@ -207,7 +207,7 @@ class CMakePluginTest {
                 INTERFACE_LINK_LIBRARIES "header_only::foo"
             )
 
-            add_library(header_only::foo INTERFACE)
+            add_library(header_only::foo INTERFACE IMPORTED)
             set_target_properties(header_only::foo PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "$fooDir/include"
                 INTERFACE_LINK_LIBRARIES ""
@@ -319,7 +319,7 @@ class CMakePluginTest {
                 INTERFACE_LINK_LIBRARIES "header_only::foo"
             )
 
-            add_library(header_only::foo INTERFACE)
+            add_library(header_only::foo INTERFACE IMPORTED)
             set_target_properties(header_only::foo PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "$fooDir/include"
                 INTERFACE_LINK_LIBRARIES ""
