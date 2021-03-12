@@ -137,13 +137,15 @@ class CMakePlugin(
             val escapedHeaders = module.includePath.sanitize()
             configFile.appendText(
                 """
+                if(NOT TARGET $target)
                 add_library($target INTERFACE IMPORTED)
                 set_target_properties($target PROPERTIES
                     INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
                     INTERFACE_LINK_LIBRARIES "$libraries"
                 )
-    
-    
+                endif()
+
+
                 """.trimIndent()
             )
         } else {
@@ -162,12 +164,14 @@ class CMakePlugin(
 
                 configFile.appendText(
                     """
+                    if(NOT TARGET $target)
                     add_library($target $prebuiltType IMPORTED)
                     set_target_properties($target PROPERTIES
                         IMPORTED_LOCATION "$escapedLibrary"
                         INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
                         INTERFACE_LINK_LIBRARIES "$libraries"
                     )
+                    endif()
 
 
                     """.trimIndent()
