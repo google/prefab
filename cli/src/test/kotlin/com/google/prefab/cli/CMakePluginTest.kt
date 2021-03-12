@@ -114,19 +114,23 @@ class CMakePluginTest {
 
             find_package(qux REQUIRED CONFIG)
 
+            if(NOT TARGET foo::bar)
             add_library(foo::bar SHARED IMPORTED)
             set_target_properties(foo::bar PROPERTIES
                 IMPORTED_LOCATION "$barDir/libs/android.arm64-v8a/libbar.so"
                 INTERFACE_INCLUDE_DIRECTORIES "$barDir/include"
                 INTERFACE_LINK_LIBRARIES "-landroid"
             )
+            endif()
 
+            if(NOT TARGET foo::baz)
             add_library(foo::baz SHARED IMPORTED)
             set_target_properties(foo::baz PROPERTIES
                 IMPORTED_LOCATION "$bazDir/libs/android.arm64-v8a/libbaz.so"
                 INTERFACE_INCLUDE_DIRECTORIES "$bazDir/include"
                 INTERFACE_LINK_LIBRARIES "-llog;foo::bar;qux::libqux"
             )
+            endif()
 
 
             """.trimIndent(), fooConfigFile.readText()
@@ -151,12 +155,14 @@ class CMakePluginTest {
             """
             find_package(foo REQUIRED CONFIG)
 
+            if(NOT TARGET qux::libqux)
             add_library(qux::libqux STATIC IMPORTED)
             set_target_properties(qux::libqux PROPERTIES
                 IMPORTED_LOCATION "$quxDir/libs/android.arm64-v8a/libqux.a"
                 INTERFACE_INCLUDE_DIRECTORIES "$quxDir/include"
                 INTERFACE_LINK_LIBRARIES "foo::bar"
             )
+            endif()
 
 
             """.trimIndent(), quxConfigFile.readText()
@@ -200,18 +206,22 @@ class CMakePluginTest {
         val barDir = packagePath.resolve("modules/bar").sanitize()
         assertEquals(
             """
+            if(NOT TARGET header_only::bar)
             add_library(header_only::bar SHARED IMPORTED)
             set_target_properties(header_only::bar PROPERTIES
                 IMPORTED_LOCATION "$barDir/libs/android.arm64-v8a/libbar.so"
                 INTERFACE_INCLUDE_DIRECTORIES "$barDir/include"
                 INTERFACE_LINK_LIBRARIES "header_only::foo"
             )
+            endif()
 
+            if(NOT TARGET header_only::foo)
             add_library(header_only::foo INTERFACE IMPORTED)
             set_target_properties(header_only::foo PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "$fooDir/include"
                 INTERFACE_LINK_LIBRARIES ""
             )
+            endif()
 
 
             """.trimIndent(), configFile.readText()
@@ -256,12 +266,14 @@ class CMakePluginTest {
         val modDir = path.resolve("modules/perplatform").sanitize()
         assertEquals(
             """
+            if(NOT TARGET per_platform_includes::perplatform)
             add_library(per_platform_includes::perplatform SHARED IMPORTED)
             set_target_properties(per_platform_includes::perplatform PROPERTIES
                 IMPORTED_LOCATION "$modDir/libs/android.arm64-v8a/libperplatform.so"
                 INTERFACE_INCLUDE_DIRECTORIES "$modDir/libs/android.arm64-v8a/include"
                 INTERFACE_LINK_LIBRARIES ""
             )
+            endif()
 
 
             """.trimIndent(), configFile.readText()
@@ -279,12 +291,14 @@ class CMakePluginTest {
 
         assertEquals(
             """
+            if(NOT TARGET per_platform_includes::perplatform)
             add_library(per_platform_includes::perplatform SHARED IMPORTED)
             set_target_properties(per_platform_includes::perplatform PROPERTIES
                 IMPORTED_LOCATION "$modDir/libs/android.x86_64/libperplatform.so"
                 INTERFACE_INCLUDE_DIRECTORIES "$modDir/include"
                 INTERFACE_LINK_LIBRARIES ""
             )
+            endif()
 
 
             """.trimIndent(), configFile.readText()
@@ -312,18 +326,22 @@ class CMakePluginTest {
         val barDir = packagePath.resolve("modules/bar").sanitize()
         assertEquals(
             """
+            if(NOT TARGET header_only::bar)
             add_library(header_only::bar SHARED IMPORTED)
             set_target_properties(header_only::bar PROPERTIES
                 IMPORTED_LOCATION "$barDir/libs/android.arm64-v8a/libbar.so"
                 INTERFACE_INCLUDE_DIRECTORIES "$barDir/include"
                 INTERFACE_LINK_LIBRARIES "header_only::foo"
             )
+            endif()
 
+            if(NOT TARGET header_only::foo)
             add_library(header_only::foo INTERFACE IMPORTED)
             set_target_properties(header_only::foo PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "$fooDir/include"
                 INTERFACE_LINK_LIBRARIES ""
             )
+            endif()
 
 
             """.trimIndent(), configFile.readText()
@@ -362,19 +380,23 @@ class CMakePluginTest {
         val fooStaticDir = packagePath.resolve("modules/foo_static").sanitize()
         assertEquals(
             """
+            if(NOT TARGET static_and_shared::foo)
             add_library(static_and_shared::foo SHARED IMPORTED)
             set_target_properties(static_and_shared::foo PROPERTIES
                 IMPORTED_LOCATION "$fooDir/libs/android.shared/libfoo.so"
                 INTERFACE_INCLUDE_DIRECTORIES "$fooDir/include"
                 INTERFACE_LINK_LIBRARIES ""
             )
+            endif()
 
+            if(NOT TARGET static_and_shared::foo_static)
             add_library(static_and_shared::foo_static STATIC IMPORTED)
             set_target_properties(static_and_shared::foo_static PROPERTIES
                 IMPORTED_LOCATION "$fooStaticDir/libs/android.static/libfoo.a"
                 INTERFACE_INCLUDE_DIRECTORIES "$fooStaticDir/include"
                 INTERFACE_LINK_LIBRARIES ""
             )
+            endif()
 
 
             """.trimIndent(), configFile.readText()
@@ -398,12 +420,14 @@ class CMakePluginTest {
         val fooStaticDir = packagePath.resolve("modules/foo_static").sanitize()
         assertEquals(
             """
+            if(NOT TARGET static_and_shared::foo_static)
             add_library(static_and_shared::foo_static STATIC IMPORTED)
             set_target_properties(static_and_shared::foo_static PROPERTIES
                 IMPORTED_LOCATION "$fooStaticDir/libs/android.static/libfoo.a"
                 INTERFACE_INCLUDE_DIRECTORIES "$fooStaticDir/include"
                 INTERFACE_LINK_LIBRARIES ""
             )
+            endif()
 
 
             """.trimIndent(), configFile.readText()
