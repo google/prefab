@@ -24,6 +24,7 @@ import com.google.prefab.api.NoMatchingLibraryException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
 
 /**
@@ -37,6 +38,9 @@ import java.nio.file.Path
  * It's not clear how that will behave with Windows \\?\ paths.
  */
 fun Path.sanitize(): String = toString().replace('\\', '/')
+
+fun Path.directoryNotEmpty(): Boolean =
+    toFile().exists() && Files.list(this).count() > 0
 
 /**
  * The build plugin for [CMake](https://cmake.org/).
@@ -134,6 +138,8 @@ class CMakePlugin(
 
         val target = "${pkg.name}::${module.name}"
         if (module.isHeaderOnly) {
+            // No check for header-only modules without headers because there's
+            // no point in those existing, so an error is fine.
             val escapedHeaders = module.includePath.sanitize()
             configFile.appendText(
                 """
@@ -168,7 +174,20 @@ class CMakePlugin(
                     add_library($target $prebuiltType IMPORTED)
                     set_target_properties($target PROPERTIES
                         IMPORTED_LOCATION "$escapedLibrary"
-                        INTERFACE_INCLUDE_DIRECTORIES "$escapedHeaders"
+
+                    """.trimIndent())
+
+                // Handle cases where an empty include directory is not
+                // preserved. This happens when we're called by AGP.
+                // https://issuetracker.google.com/178594838
+                if (prebuilt.includePath.directoryNotEmpty()) {
+                    configFile.appendText(
+                        "    INTERFACE_INCLUDE_DIRECTORIES \"$escapedHeaders\"\n"
+                    )
+                }
+
+                configFile.appendText(
+                    """
                         INTERFACE_LINK_LIBRARIES "$libraries"
                     )
                     endif()

@@ -433,4 +433,35 @@ class CMakePluginTest {
             """.trimIndent(), configFile.readText()
         )
     }
+
+    @Test
+    fun `empty include directories are skipped`() {
+        // Regression test for https://issuetracker.google.com/178594838.
+        val packagePath = Paths.get(
+            this.javaClass.getResource("packages/no_headers").toURI()
+        )
+        val pkg = Package(packagePath)
+        CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
+            listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
+        )
+
+        val configFile =
+            outputDirectory.resolve(cmakeConfigFile(pkg.name)).toFile()
+        assertTrue(configFile.exists())
+
+        val moduleDir = packagePath.resolve("modules/runtime").sanitize()
+        assertEquals(
+            """
+            if(NOT TARGET no_headers::runtime)
+            add_library(no_headers::runtime SHARED IMPORTED)
+            set_target_properties(no_headers::runtime PROPERTIES
+                IMPORTED_LOCATION "$moduleDir/libs/android.arm64-v8a/libruntime.so"
+                INTERFACE_LINK_LIBRARIES ""
+            )
+            endif()
+
+
+            """.trimIndent(), configFile.readText()
+        )
+    }
 }
