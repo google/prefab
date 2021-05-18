@@ -25,4 +25,4 @@ prebuilt libraries it describes. Prefab is:
 ## Building the command line executable
 
 From the prefab directory run `./gradlew installDist`. This will build and
-install the CLI binary (named `cli`) into  `cli/build/install/cli`.
+install the CLI binary (named `prefab`) into  `cli/build/install/prefab/bin/prefab`.
