@@ -19,12 +19,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 /**
  * Project Kotlin version.
  */
-val kotlinVersion: String = "1.4.32"
+val kotlinVersion: String = "1.5.20"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    kotlin("jvm").version("1.4.32")
-    kotlin("plugin.serialization").version("1.4.32")
+    kotlin("jvm").version("1.5.20")
+    kotlin("plugin.serialization").version("1.5.20")
     distribution
     id("maven-publish")
     id("com.github.jk1.dependency-license-report").version("1.16")
