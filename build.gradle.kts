@@ -66,8 +66,8 @@ subprojects {
         testImplementation(kotlin("test-junit"))
 
         // Use JUnit 5.
-        testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
     }
 
     publishing {
@@ -96,10 +96,13 @@ tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
 licenseReport {
     allowedLicensesFile = projectDir.resolve("config/allowed_licenses.json")
     excludes = listOf(
-        // These aren't real dependencies, they're only used to inject the real
-        // dependency based on the platform. The real dependency
-        // (kotlinx-serialization-json-jvm) passes the license check, but the
-        // no-op dependencies has no license information.
+        // These dependencies don't have direct license information but inherit
+        // that data from a parent project, which the license checking plugin
+        // can't follow, so it would fail because it cannot find a license.
+        // Each license is explicitly listed below and checking is skipped.
+
+        // Apache 2.0
+        "com.github.ajalt.clikt:clikt",
         "org.jetbrains.kotlinx:kotlinx-serialization-core",
         "org.jetbrains.kotlinx:kotlinx-serialization-json",
     ).toTypedArray()
