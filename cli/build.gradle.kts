@@ -22,8 +22,8 @@ plugins {
     id("com.github.johnrengelman.shadow").version("7.0.0")
 }
 dependencies {
-    implementation("com.github.ajalt:clikt:2.7.1")
-    testImplementation("io.mockk:mockk:1.10.0")
+    implementation("com.github.ajalt.clikt:clikt:3.2.0")
+    testImplementation("io.mockk:mockk:1.12.0")
 
     implementation(project(":api"))
     runtimeOnly(project(":cmake-plugin"))
@@ -35,7 +35,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = "com.google.prefab.cli.AppKt"
+    mainClass.set("com.google.prefab.cli.AppKt")
     applicationName = "prefab"
 }
 

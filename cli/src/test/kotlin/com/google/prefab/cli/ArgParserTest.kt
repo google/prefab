@@ -17,7 +17,8 @@
 package com.google.prefab.cli
 
 import com.github.ajalt.clikt.core.BadParameterValue
-import com.github.ajalt.clikt.core.MissingParameter
+import com.github.ajalt.clikt.core.MissingArgument
+import com.github.ajalt.clikt.core.MissingOption
 import com.github.ajalt.clikt.core.UsageError
 import org.junit.jupiter.api.TestInstance
 import java.io.File
@@ -48,7 +49,7 @@ class ArgParserTest {
 
     @Test
     fun `fails if --build-system is missing`() {
-        assertFailsWith(MissingParameter::class) {
+        assertFailsWith(MissingOption::class) {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",
@@ -62,7 +63,7 @@ class ArgParserTest {
 
     @Test
     fun `fails if --output is missing`() {
-        assertFailsWith(MissingParameter::class) {
+        assertFailsWith(MissingOption::class) {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",
@@ -137,7 +138,7 @@ class ArgParserTest {
 
     @Test
     fun `fails if no packages are provided`() {
-        assertFailsWith(MissingParameter::class) {
+        assertFailsWith(MissingArgument::class) {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",
