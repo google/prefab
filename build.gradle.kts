@@ -19,20 +19,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 /**
  * Project Kotlin version.
  */
-val kotlinVersion: String = "1.4.10"
+val kotlinVersion: String = "1.4.32"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    kotlin("jvm").version("1.4.10")
-    kotlin("plugin.serialization").version("1.4.10")
+    kotlin("jvm").version("1.4.32")
+    kotlin("plugin.serialization").version("1.4.32")
     distribution
     id("maven-publish")
-    id("com.github.jk1.dependency-license-report").version("1.14")
-    id("org.jetbrains.dokka").version("0.10.1")
+    id("com.github.jk1.dependency-license-report").version("1.16")
+    id("org.jetbrains.dokka").version("1.4.32")
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 subprojects {
@@ -51,12 +51,13 @@ subprojects {
         qualifier
     }
 
+    apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "kotlinx-serialization")
     apply(plugin = "maven-publish")
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -83,13 +84,11 @@ subprojects {
     }
 }
 
-tasks {
-    dokka {
-        outputFormat = "html"
-        outputDirectory = "$buildDir/dokka"
-        subProjects = subprojects.map { it.name }
-        configuration {
-            reportUndocumented = true
+tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
+    outputDirectory.set(buildDir.resolve("dokka"))
+    dokkaSourceSets {
+        configureEach {
+            reportUndocumented.set(true)
         }
     }
 }
@@ -97,11 +96,12 @@ tasks {
 licenseReport {
     allowedLicensesFile = projectDir.resolve("config/allowed_licenses.json")
     excludes = listOf(
-        // This isn't a real dependency, it's only used to inject the real
+        // These aren't real dependencies, they're only used to inject the real
         // dependency based on the platform. The real dependency
         // (kotlinx-serialization-json-jvm) passes the license check, but the
-        // no-op dependency has no license information.
-        "org.jetbrains.kotlinx:kotlinx-serialization-json"
+        // no-op dependencies has no license information.
+        "org.jetbrains.kotlinx:kotlinx-serialization-core",
+        "org.jetbrains.kotlinx:kotlinx-serialization-json",
     ).toTypedArray()
 }
 
@@ -135,5 +135,5 @@ tasks.named("repositoryDistZip") {
 
 tasks.register("release") {
     dependsOn(":build")
-    dependsOn(":dokka")
+    dependsOn(":dokkaHtmlMultiModule")
 }
