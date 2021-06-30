@@ -14,6 +14,7 @@ build
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/**/misc.xml
+.idea/**/jarRepositories.xml
 
 # Generated files
 .idea/**/contentModel.xml
