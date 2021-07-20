@@ -16,16 +16,23 @@
 
 package com.google.prefab.cli
 
-import org.junit.jupiter.api.TestInstance
+import com.google.prefab.api.SchemaVersion
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class EndToEndTest {
+@RunWith(Parameterized::class)
+class EndToEndTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
+    companion object {
+        @Parameterized.Parameters(name = "schema version = {0}")
+        @JvmStatic
+        fun data(): List<SchemaVersion> = SchemaVersion.values().toList()
+    }
+
     private val outputDirectory: Path =
         Files.createTempDirectory("output").apply {
         toFile().apply { deleteOnExit() }
@@ -33,8 +40,7 @@ class EndToEndTest {
 
     @Test
     fun `unknown dependencies are an error`() {
-        val packagePath =
-            Paths.get(this.javaClass.getResource("packages/foo").toURI())
+        val path = packagePath("foo")
 
         val ex = assertFailsWith(FatalApplicationError::class) {
             Cli().main(
@@ -46,7 +52,7 @@ class EndToEndTest {
                     "--ndk-version", "21",
                     "--build-system", "ndk-build",
                     "--output", outputDirectory.toString(),
-                    packagePath.toString()
+                    path.toString()
                 )
             )
         }

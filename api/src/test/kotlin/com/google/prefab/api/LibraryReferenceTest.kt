@@ -16,12 +16,10 @@
 
 package com.google.prefab.api
 
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LibraryReferenceTest {
     @Test
     fun `fromString handles literal references`() {

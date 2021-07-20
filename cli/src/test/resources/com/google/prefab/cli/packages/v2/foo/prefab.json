@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "name": "foo",
+  "version": "1",
+  "dependencies": [
+    "qux",
+    "quux"
+  ]
+}

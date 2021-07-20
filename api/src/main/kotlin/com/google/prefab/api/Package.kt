@@ -16,8 +16,6 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.nio.file.Path
 
@@ -39,15 +37,9 @@ class Package(val path: Path) {
     /**
      * The metadata object loaded from the prefab.json.
      */
-    private val metadata: PackageMetadataV1 =
-        Json.decodeFromString<PackageMetadataV1>(
-            path.resolve("prefab.json").toFile().readText()
-        ).also {
-            require(it.schemaVersion == 1) {
-                "Only schema_version 1 is supported. ${it.name} uses version " +
-                        "${it.schemaVersion}."
-            }
-        }
+    private val metadata: PackageMetadataV1 = PackageMetadata.loadAndMigrate(
+        SchemaVersion.from(path), path
+    )
 
     /**
      * The name of the package.
@@ -69,6 +61,16 @@ class Package(val path: Path) {
     }
 
     /**
+     * The schema version of the package being loaded.
+     *
+     * If successfully constructed the data will have been migrated to the
+     * current schema version. This property defines the schema version used by
+     * the files being loaded.
+     */
+    private val schemaVersion: SchemaVersion =
+        SchemaVersion.from(metadata.schemaVersion)
+
+    /**
      * The path to the package's module directory.
      */
     private val moduleDir: File = path.resolve("modules").toFile()
@@ -88,7 +90,7 @@ class Package(val path: Path) {
         // For now, just ignore all files (fixes the .DS_Store case) and any
         // hidden directories (just in case).
         moduleDir.listFiles()?.filter { it.isDirectory && !it.isHidden }
-            ?.map { Module(it.toPath(), this) }
+            ?.map { Module(it.toPath(), this, schemaVersion) }
             ?: throw RuntimeException(
                 "Unable to retrieve file list for $moduleDir"
             )

@@ -151,7 +151,7 @@ and any inter-package dependencies the package may have.
 
 ```json
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "name": "<package name>",
     "version": "<package version>",
     "dependencies": [
@@ -164,7 +164,9 @@ and any inter-package dependencies the package may have.
 The `schema_version` describes the generation of the package format. Any
 incompatible change to either metadata format or the package layout will result
 in an increase in the schema version. Whenever possible, old package versions
-will continue to be supported when new schema versions are introduced.
+will continue to be supported when new schema versions are introduced. Currently
+there are only two schema versions (1 and 2). Packages using schema version 1
+can be automatically migrated to version 2.
 
 `name` identifies the Package and should match the name of the containing
 directory.

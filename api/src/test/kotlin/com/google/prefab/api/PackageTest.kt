@@ -16,13 +16,10 @@
 
 package com.google.prefab.api
 
-import com.google.prefab.api.isValidVersionForCMake
-import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PackageTest {
     @Test
     fun `isValidVersionForCMake works`() {

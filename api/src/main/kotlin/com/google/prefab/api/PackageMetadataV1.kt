@@ -18,12 +18,15 @@ package com.google.prefab.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.nio.file.Path
 
 /**
  * The v1 prefab.json schema.
  *
  * @property[name] The name of the module.
- * @property[schemaVersion] The version of the schema. Must be 1.
+ * @property[schemaVersion] The version of the package schema.
  * @property[dependencies] A list of other packages required by this package.
  * @property[version] The package version. For compatibility with CMake, this
  * *must* be formatted as major[.minor[.patch[.tweak]]] with all components
@@ -36,4 +39,11 @@ data class PackageMetadataV1(
     val schemaVersion: Int,
     val dependencies: List<String>,
     val version: String? = null
-)
+) : PackageMetadata {
+    companion object : VersionedMetadataLoader<PackageMetadataV1> {
+        override fun load(directory: Path): PackageMetadataV1 =
+            Json.decodeFromString(
+                directory.resolve("prefab.json").toFile().readText()
+            )
+    }
+}

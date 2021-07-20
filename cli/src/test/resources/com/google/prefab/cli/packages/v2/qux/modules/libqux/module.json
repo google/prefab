@@ -1,0 +1,4 @@
+{
+  "export_libraries": ["//foo:bar"],
+  "library_name": "libqux"
+}

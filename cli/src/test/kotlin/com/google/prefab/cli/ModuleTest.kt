@@ -22,29 +22,34 @@ import com.google.prefab.api.Module
 import com.google.prefab.api.NoMatchingLibraryException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
+import com.google.prefab.api.SchemaVersion
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.TestInstance
-import java.nio.file.Paths
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ModuleTest {
+@RunWith(Parameterized::class)
+class ModuleTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
     private val android: PlatformDataInterface =
         Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
+
+    companion object {
+        @Parameterized.Parameters(name = "schema version = {0}")
+        @JvmStatic
+        fun data(): List<SchemaVersion> = SchemaVersion.values().toList()
+    }
 
     @Test
     fun `can load basic module`() {
         val pkg = mockk<Package>()
         every { pkg.name } returns "foo"
 
-        val modulePath = Paths.get(
-            this.javaClass.getResource("packages/foo/modules/bar").toURI()
-        )
+        val modulePath = packagePath("foo").resolve("modules/bar")
 
-        val module = Module(modulePath, pkg)
+        val module = Module(modulePath, pkg, schemaVersion)
         assertEquals(modulePath.fileName.toString(), module.name)
         assertEquals("//foo/bar", module.canonicalName)
         assertEquals(modulePath, module.path)
@@ -62,11 +67,9 @@ class ModuleTest {
         val pkg = mockk<Package>()
         every { pkg.name } returns "qux"
 
-        val modulePath = Paths.get(
-            this.javaClass.getResource("packages/qux/modules/libqux").toURI()
-        )
+        val modulePath = packagePath("qux").resolve("modules/libqux")
 
-        val module = Module(modulePath, pkg)
+        val module = Module(modulePath, pkg, schemaVersion)
         assertEquals(modulePath.fileName.toString(), module.name)
         assertEquals("//qux/libqux", module.canonicalName)
         assertEquals(modulePath, module.path)
@@ -84,11 +87,11 @@ class ModuleTest {
         val pkg = mockk<Package>()
         every { pkg.name } returns "find_best_match"
 
-        val byApi = Module(Paths.get(
-            this.javaClass.getResource(
-                "packages/find_best_match/modules/byapi"
-            ).toURI()
-        ), pkg)
+        val byApi = Module(
+            packagePath("find_best_match").resolve("modules/byapi"),
+            pkg,
+            schemaVersion
+        )
 
         val lollipop = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
         val marshmallow =
@@ -116,11 +119,11 @@ class ModuleTest {
         assertEquals(24, (byApi.getLibraryFor(oreo).platform as Android).api)
         assertEquals(28, (byApi.getLibraryFor(pie).platform as Android).api)
 
-        val byNdk = Module(Paths.get(
-            this.javaClass.getResource(
-                "packages/find_best_match/modules/byndk"
-            ).toURI()
-        ), pkg)
+        val byNdk = Module(
+            packagePath("find_best_match").resolve(
+                "modules/byndk"
+            ), pkg, schemaVersion
+        )
 
         val r18 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18)
         val r19 = Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 19)

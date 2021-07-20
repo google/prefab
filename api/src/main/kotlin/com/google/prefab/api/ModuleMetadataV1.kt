@@ -18,6 +18,9 @@ package com.google.prefab.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.nio.file.Path
 
 /**
  * The module metadata that is overridable per-platform in module.json.
@@ -61,4 +64,15 @@ data class ModuleMetadataV1(
     // Android specific or not.
     val android: PlatformSpecificModuleMetadataV1 =
         PlatformSpecificModuleMetadataV1(null, null)
-)
+) : ModuleMetadata {
+    companion object : VersionedMetadataLoader<ModuleMetadataV1> {
+        override fun load(directory: Path): ModuleMetadataV1 =
+            directory.resolve("module.json").toFile().let {
+                if (it.exists()) {
+                    Json.decodeFromString(it.readText())
+                } else {
+                    ModuleMetadataV1()
+                }
+            }
+    }
+}

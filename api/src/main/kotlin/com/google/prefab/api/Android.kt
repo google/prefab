@@ -16,8 +16,6 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import java.nio.file.Path
 import kotlin.math.max
 
@@ -114,7 +112,9 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
      * @property[family] The family of the STL.
      * @property[isShared] True if this STL is a shared library.
      */
-    enum class Stl(val stlName: String, val family: Family, val isShared: Boolean) {
+    enum class Stl(
+        val stlName: String, val family: Family, val isShared: Boolean
+    ) {
         /**
          * Shared libc++.
          */
@@ -160,6 +160,8 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
 
         /**
          * The family of the STL.
+         *
+         * @property[familyName] Name of the STL family.
          */
         enum class Family(val familyName: String) {
             /**
@@ -197,8 +199,7 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         }
     }
 
-    private fun stlsAreCompatible(library: PrebuiltLibrary):
-            LibraryUsabilityResult {
+    private fun stlsAreCompatible(library: PrebuiltLibrary): LibraryUsabilityResult {
         require(library.platform is Android) {
             "library must be an Android library"
         }
@@ -338,8 +339,7 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         val maxNdkVersion = bestApiLevelMatches.maxByOrNull {
             it.second.ndkMajorVersion
         }!!.second.ndkMajorVersion
-        val clamped =
-            ndkMajorVersion.coerceIn(minNdkVersion, maxNdkVersion)
+        val clamped = ndkMajorVersion.coerceIn(minNdkVersion, maxNdkVersion)
         val ndkVersionMatches = bestApiLevelMatches.filter { (_, reqs) ->
             reqs.ndkMajorVersion == clamped
         }
@@ -348,7 +348,8 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         if (ndkVersionMatches.isEmpty()) {
             throw RuntimeException(
                 "$moduleName contains a library per NDK version but no match " +
-                        "was found for $ndkMajorVersion")
+                        "was found for $ndkMajorVersion"
+            )
         }
 
         if (ndkVersionMatches.size == 1) {
@@ -379,30 +380,36 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
         )
     }
 
-    override fun libraryFileFromDirectory(
-        directory: Path,
-        module: Module
-    ): Path = findElfLibrary(directory, module.libraryNameForPlatform(this))
-
     /**
      * The [Android] factory object.
      */
     companion object : PlatformFactoryInterface {
         override val identifier: String = "android"
 
-        override fun fromLibraryDirectory(
-            directory: Path
-        ): PlatformDataInterface {
-            val metadata = Json.decodeFromString<AndroidAbiMetadata>(
-                directory.toFile().resolve("abi.json").readText()
+        override fun prebuiltLibraryFromDirectory(
+            directory: Path, module: Module, loadSchemaVersion: SchemaVersion
+        ): PrebuiltLibrary {
+            val metadata = AndroidAbiMetadata.loadAndMigrate(
+                loadSchemaVersion,
+                directory,
+                module
             )
 
-            return Android(
+            val platformData = Android(
                 Abi.fromString(metadata.abi),
                 metadata.api,
                 Stl.fromString(metadata.stl),
                 metadata.ndk
             )
+            val name = libraryNameFor(module)
+            val ext = if (metadata.isStatic) "a" else "so"
+            val path = directory.resolve("$name.$ext")
+            return PrebuiltLibrary(path, module, platformData)
+        }
+
+        override fun libraryNameFor(module: Module): String {
+            return module.metadata.android.libraryName
+                ?: module.metadata.libraryName ?: "lib${module.name}"
         }
     }
 }

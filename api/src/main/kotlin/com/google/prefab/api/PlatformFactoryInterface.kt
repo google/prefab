@@ -33,11 +33,27 @@ interface PlatformFactoryInterface {
     val identifier: String
 
     /**
-     * Constructs a [PlatformDataInterface] describing the library contained in
-     * [directory].
+     * Constructs a [PrebuiltLibrary] for the library contained in [directory].
      *
      * @param[directory] The library directory.
-     * @return A [PlatformDataInterface] describing the library.
+     * @param[module] The module the library belongs to.
+     * @param[loadSchemaVersion] The schema version of the package being loaded.
+     * @return The [PrebuiltLibrary] contained in the directory.
      */
-    fun fromLibraryDirectory(directory: Path): PlatformDataInterface
+    fun prebuiltLibraryFromDirectory(
+        directory: Path, module: Module, loadSchemaVersion: SchemaVersion
+    ): PrebuiltLibrary
+
+    /**
+     * Get name of the library file for this platform.
+     *
+     * Not all platforms follow the same naming convention. For example, POSIX
+     * systems typically name their libraries `lib$name.$ext`, but Windows more
+     * commonly just uses `$name.$ext`. This allows the platform to customize
+     * that behavior.
+     *
+     * @param[module] The module return the library name for.
+     * @return The library name of the given module for this platform.
+     */
+    fun libraryNameFor(module: Module): String
 }

@@ -23,22 +23,29 @@ import com.google.prefab.api.MissingArtifactIDException
 import com.google.prefab.api.MissingPlatformIDException
 import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
+import com.google.prefab.api.SchemaVersion
 import com.google.prefab.api.UnsupportedPlatformException
-import org.junit.jupiter.api.TestInstance
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PackageTest {
+@RunWith(Parameterized::class)
+class PackageTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
+    companion object {
+        @Parameterized.Parameters(name = "schema version = {0}")
+        @JvmStatic
+        fun data(): List<SchemaVersion> = SchemaVersion.values().toList()
+    }
+
     private val android: PlatformDataInterface =
         Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21)
 
     @Test
     fun `can load basic package`() {
-        val packagePath =
-            Paths.get(this.javaClass.getResource("packages/foo").toURI())
+        val packagePath = packagePath("foo")
         val pkg = Package(packagePath)
         assertEquals(packagePath, pkg.path)
         assertEquals("foo", pkg.name)
@@ -70,9 +77,7 @@ class PackageTest {
 
     @Test
     fun `can load package with unexpected files`() {
-        val packagePath = Paths.get(
-            this.javaClass.getResource("packages/has_unexpected_files").toURI()
-        )
+        val packagePath = packagePath("has_unexpected_files")
         val pkg = Package(packagePath)
         assertEquals(packagePath, pkg.path)
         assertEquals("has_unexpected_files", pkg.name)
@@ -91,57 +96,33 @@ class PackageTest {
     @Test
     fun `package with unsupported platforms does not load`() {
         assertFailsWith(UnsupportedPlatformException::class) {
-            val packagePath =
-                Paths.get(
-                    this.javaClass.getResource(
-                        "packages/unsupported_platform"
-                    ).toURI()
-                )
-            Package(packagePath)
+            Package(packagePath("unsupported_platform"))
         }
     }
 
     @Test
     fun `package with invalid directory name does not load`(){
         assertFailsWith(InvalidDirectoryNameException::class) {
-            val packagePath =
-                Paths.get(
-                    this.javaClass.getResource(
-                        "packages/invalid_directory_name"
-                    ).toURI()
-                )
-            Package(packagePath)
+            Package(packagePath("invalid_directory_name"))
         }
     }
 
     @Test
     fun `package with missing platform id does not load`() {
         assertFailsWith(MissingPlatformIDException::class) {
-            val packagePath =
-                Paths.get(
-                    this.javaClass.getResource(
-                        "packages/missing_platform_id"
-                    ).toURI()
-                )
-            Package(packagePath)
+            Package(packagePath("missing_platform_id"))
         }
     }
 
     @Test
     fun `package with missing artifact id does not load`() {
         assertFailsWith(MissingArtifactIDException::class) {
-            val packagePath =
-                Paths.get(
-                    this.javaClass.getResource(
-                        "packages/missing_artifact_id"
-                    ).toURI()
-                )
-            Package(packagePath)
+            Package(packagePath("missing_artifact_id"))
         }
     }
 
     @Test
-    fun `package with schema version other than 1 is rejected`() {
+    fun `package with unsupported schema version is rejected`() {
         assertFailsWith(IllegalArgumentException::class) {
             val packagePath =
                 Paths.get(
@@ -156,13 +137,7 @@ class PackageTest {
     @Test
     fun `package with invalid package version is rejected`() {
         assertFailsWith(IllegalArgumentException::class) {
-            val packagePath =
-                Paths.get(
-                    this.javaClass.getResource(
-                        "packages/bad_package_version"
-                    ).toURI()
-                )
-            Package(packagePath)
+            Package(packagePath("bad_package_version"))
         }
     }
 }

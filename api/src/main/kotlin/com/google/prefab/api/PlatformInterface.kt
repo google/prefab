@@ -16,8 +16,6 @@
 
 package com.google.prefab.api
 
-import java.nio.file.Path
-
 /**
  * Result of prebuilt library usability check.
  */
@@ -75,16 +73,4 @@ interface PlatformDataInterface {
      * best fit for these platform requirements.
      */
     fun findBestMatch(libraries: List<PrebuiltLibrary>): PrebuiltLibrary
-
-    /**
-     * Returns the library file found in the given directory.
-     *
-     * @param[directory] The path to the library directory.
-     * @param[module] The module the library belongs to.
-     * @throws[RuntimeException] No unique library could be found in the
-     * directory.
-     * @return A [Path] referring to the prebuilt library for the given
-     * directory and module name.
-     */
-    fun libraryFileFromDirectory(directory: Path, module: Module): Path
 }

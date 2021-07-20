@@ -18,14 +18,12 @@ package com.google.prefab.api
 
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AndroidTest {
     @Test
     fun `ABIs must match`() {

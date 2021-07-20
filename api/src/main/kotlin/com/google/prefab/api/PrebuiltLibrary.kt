@@ -21,17 +21,21 @@ import java.nio.file.Path
 /**
  * A platform-specific library file in a module.
  *
- * @property[directory] The platform-specific library directory containing the
- * library file.
+ * @property[path] The path to the library file on disk.
  * @property[module]: The module associated with this library.
  * @property[platform] The [platform-specific data][PlatformDataInterface]
  * describing the library.
  */
 data class PrebuiltLibrary(
-    val directory: Path,
+    val path: Path,
     val module: Module,
-    val platform: PlatformDataInterface
+    val platform: PlatformDataInterface,
 ) {
+    /**
+     * The platform-specific library directory containing the library file.
+     */
+    val directory: Path = path.parent
+
     /**
      * The path to the headers on disk.
      *
@@ -41,9 +45,4 @@ data class PrebuiltLibrary(
     val includePath: Path =
         directory.resolve("include").takeIf { it.toFile().exists() }
             ?: module.includePath
-
-    /**
-     * The path to the library file on disk.
-     */
-    val path: Path = platform.libraryFileFromDirectory(directory, module)
 }
