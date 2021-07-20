@@ -16,8 +16,6 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import java.nio.file.Path
 
 /**
@@ -28,8 +26,8 @@ import java.nio.file.Path
  */
 class UnsupportedPlatformException(module: Module, platformName: String) :
     Exception(
-        "${module.canonicalName} contains artifacts for an unsupported platform " +
-                "\"$platformName\""
+        "${module.canonicalName} contains artifacts for an unsupported " +
+                "platform \"$platformName\""
     )
 
 /**
@@ -69,13 +67,13 @@ class MissingArtifactIDException(module: Module, artifactDirectory: Path) :
  * @param[module] The module with the invalid library directory.
  * @param[artifactDirectory] The library directory with the invalid name.
  */
-class InvalidDirectoryNameException(module: Module,
-                                           artifactDirectory: Path) :
-    Exception(
-        "${module.canonicalName} artifact directory $artifactDirectory"
-                + " has an invalid name. It should have the name "
-                + " format <platform ID>.<artifact ID> e.g. android.x86"
-    )
+class InvalidDirectoryNameException(
+    module: Module, artifactDirectory: Path
+) : Exception(
+    "${module.canonicalName} artifact directory $artifactDirectory"
+            + " has an invalid name. It should have the name "
+            + " format <platform ID>.<artifact ID> e.g. android.x86"
+)
 
 /**
  * The module does not contain a library compatible with the user's
@@ -88,11 +86,11 @@ class InvalidDirectoryNameException(module: Module,
 class NoMatchingLibraryException(
     module: Module, rejectedLibraries: Map<PrebuiltLibrary, String>
 ) : Exception(
-    "No compatible library found for ${module.canonicalName}. Rejected the " +
-            "following libraries:\n" +
-            rejectedLibraries.map {
-                "${it.key.path.parent.fileName}: ${it.value}"
-            }.joinToString("\n")
+    "No compatible library found for ${module.canonicalName}. Rejected the "
+            + "following libraries:\n"
+            + rejectedLibraries.map {
+        "${it.key.path.parent.fileName}: ${it.value}"
+    }.joinToString("\n")
 )
 
 /**
@@ -100,20 +98,18 @@ class NoMatchingLibraryException(
  *
  * @property[path] The path to the module directory.
  * @property[pkg] The [Package] this module belongs to.
+ * @param[loadSchemaVersion] The schema version of the package being loaded.
  */
-class Module(val path: Path, val pkg: Package) {
+class Module(
+    val path: Path,
+    val pkg: Package,
+    loadSchemaVersion: SchemaVersion
+) {
     /**
      * The metadata object loaded form module.json.
      */
-    private val metadata: ModuleMetadataV1 = path.resolve("module.json").let {
-        if (it.toFile().exists()) {
-            Json.decodeFromString(
-                path.resolve("module.json").toFile().readText()
-            )
-        } else {
-            ModuleMetadataV1()
-        }
-    }
+    internal val metadata: ModuleMetadataV1 =
+        ModuleMetadata.loadAndMigrate(loadSchemaVersion, path)
 
     /**
      * The name of the module.
@@ -148,11 +144,11 @@ class Module(val path: Path, val pkg: Package) {
                 throw InvalidDirectoryNameException(this, directory.toPath())
             }
 
-            if (components[0].isEmpty()){
+            if (components[0].isEmpty()) {
                 throw MissingPlatformIDException(this, directory.toPath())
             }
 
-            if (components[1].isEmpty()){
+            if (components[1].isEmpty()) {
                 throw MissingArtifactIDException(this, directory.toPath())
             }
 
@@ -161,10 +157,10 @@ class Module(val path: Path, val pkg: Package) {
             val platformFactory = PlatformRegistry.find(platformName)
                 ?: throw UnsupportedPlatformException(this, platformName)
 
-            PrebuiltLibrary(
+            platformFactory.prebuiltLibraryFromDirectory(
                 directory.toPath(),
                 this,
-                platformFactory.fromLibraryDirectory(directory.toPath())
+                loadSchemaVersion
             )
         } ?: emptyList()
 
@@ -204,8 +200,8 @@ class Module(val path: Path, val pkg: Package) {
             // Some refactoring of the build system plugin API could make it the
             // CLI's responsibility to set that policy and print the results.
             throw NoMatchingLibraryException(
-                this, rejections.toSortedMap(
-                    compareBy { it.path.parent.fileName })
+                this,
+                rejections.toSortedMap(compareBy { it.path.parent.fileName })
             )
         }
         return platformData.findBestMatch(compatible)
@@ -218,8 +214,7 @@ class Module(val path: Path, val pkg: Package) {
      * @throws[IllegalArgumentException] The given platform is not recognized.
      * @return The libraries appropriate for the given platform.
      */
-    fun linkLibsForPlatform(platform: PlatformDataInterface):
-            List<LibraryReference> {
+    fun linkLibsForPlatform(platform: PlatformDataInterface): List<LibraryReference> {
         val platformSpecificLibs = when (platform) {
             is Android -> metadata.android.exportLibraries
             else -> throw IllegalArgumentException(

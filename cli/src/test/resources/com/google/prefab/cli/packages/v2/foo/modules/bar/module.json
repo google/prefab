@@ -1,0 +1,6 @@
+{
+  "export_libraries": [],
+  "android": {
+    "export_libraries": ["-landroid"]
+  }
+}

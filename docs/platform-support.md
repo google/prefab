@@ -51,9 +51,15 @@ metadata has the following format:
     "abi": "arm64-v8a",
     "api": 24,
     "ndk": 19,
-    "stl": "libc++_shared"
+    "stl": "libc++_shared",
+    "static": true
 }
 ```
+
+The `static` property is optional and defaults to `false`. This property is used
+to determine whether the library in the directory is a static or shared library,
+and therefore the file extension of the library. In the V1 schema this property
+was determined based on the contents of the directory, but in Prefab 2 the libraries are not required to exist before generating build scripts.
 
 At present, the following rules are used to select Android libraries based on
 the requested configuration:

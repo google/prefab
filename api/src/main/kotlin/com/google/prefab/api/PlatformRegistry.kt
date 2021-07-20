@@ -26,16 +26,6 @@ object PlatformRegistry {
     private val platforms: List<PlatformFactoryInterface> = listOf(Android)
 
     /**
-     * Determines if the given [identifier] matches a supported platform.
-     *
-     * @param[identifier] The name of the platform.
-     * @return true if the given [identifier] matches a supported platform.
-     */
-    fun supports(identifier: String): Boolean {
-        return find(identifier) != null
-    }
-
-    /**
      * Finds the supported platform associated with the given [identifier].
      *
      * @param[identifier] The name of the platform.

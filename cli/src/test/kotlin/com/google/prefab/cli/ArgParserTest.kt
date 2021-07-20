@@ -20,32 +20,34 @@ import com.github.ajalt.clikt.core.BadParameterValue
 import com.github.ajalt.clikt.core.MissingArgument
 import com.github.ajalt.clikt.core.MissingOption
 import com.github.ajalt.clikt.core.UsageError
-import org.junit.jupiter.api.TestInstance
+import com.google.prefab.api.SchemaVersion
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.io.File
 import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ArgParserTest {
+@RunWith(Parameterized::class)
+class ArgParserTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
     class NoRunTestCli : Cli() {
         override fun run() {
             validate()
         }
     }
 
+    companion object {
+        @Parameterized.Parameters(name = "schema version = {0}")
+        @JvmStatic
+        fun data(): List<SchemaVersion> = SchemaVersion.values().toList()
+    }
+
     private val file: File = File.createTempFile("tmpfile", null).apply {
         deleteOnExit()
     }
 
-    private val fooPath: Path = Paths.get(
-        this.javaClass.getResource("packages/foo").toURI()
-    )
-
-    private val quxPath: Path = Paths.get(
-        this.javaClass.getResource("packages/qux").toURI()
-    )
+    private val fooPath: Path = packagePath("foo")
+    private val quxPath: Path = packagePath("qux")
 
     @Test
     fun `fails if --build-system is missing`() {
@@ -171,19 +173,8 @@ class ArgParserTest {
 
     @Test
     fun `duplicate packages names are an error`() {
-        val packageA =
-            Paths.get(
-                this.javaClass.getResource(
-                    "packages/duplicate_package_names_a"
-                ).toURI()
-            )
-
-        val packageB =
-            Paths.get(
-                this.javaClass.getResource(
-                    "packages/duplicate_package_names_b"
-                ).toURI()
-            )
+        val packageA = packagePath("duplicate_package_names_a")
+        val packageB = packagePath("duplicate_package_names_b")
 
         assertFailsWith<DuplicatePackageNamesException> {
             NoRunTestCli().parse(

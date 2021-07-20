@@ -16,14 +16,12 @@
 
 package com.google.prefab.api
 
-import org.junit.jupiter.api.TestInstance
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ElfTest {
     @Test
     fun `can find single shared library`() {

@@ -1,0 +1,6 @@
+{
+  "export_libraries": [":bar", "//qux:libqux"],
+  "android": {
+    "export_libraries": ["-llog", ":bar", "//qux:libqux"]
+  }
+}

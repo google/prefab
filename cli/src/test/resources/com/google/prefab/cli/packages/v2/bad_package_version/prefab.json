@@ -1,0 +1,6 @@
+{
+    "schema_version": 2,
+    "name": "bad_package_version",
+    "version": "1.1.1d",
+    "dependencies": []
+}

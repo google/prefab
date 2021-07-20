@@ -39,6 +39,9 @@ import java.nio.file.Path
  */
 fun Path.sanitize(): String = toString().replace('\\', '/')
 
+/**
+ * Returns true if the path exists and is not an empty directory.
+ */
 fun Path.directoryNotEmpty(): Boolean =
     toFile().exists() && Files.list(this).count() > 0
 

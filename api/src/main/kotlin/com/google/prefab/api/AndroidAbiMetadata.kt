@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,34 @@
 
 package com.google.prefab.api
 
-import kotlinx.serialization.Serializable
+import java.nio.file.Path
 
 /**
- * The Android abi.json schema.
- *
- * @property[abi] The ABI name of the described library. For a list of valid ABI
- * names, see [Android.Abi].
- * @property[api] The minimum OS version supported by the library. i.e. the
- * library's `minSdkVersion`.
- * @property[ndk] The major version of the NDK that this library was built with.
- * @property[stl] The STL that this library was built with.
+ * Base type for all Android abi.json versions.
  */
-@Serializable
-data class AndroidAbiMetadata(
-    val abi: String,
-    val api: Int,
-    val ndk: Int,
-    val stl: String
-)
+interface AndroidAbiMetadata : Metadata {
+    /**
+     * Migrates this object to the latest metadata version if necessary.
+     *
+     * If this object is already the latest version of the metadata, a copy is
+     * returned.
+     */
+    fun migrate(module: Module, directory: Path): AndroidAbiMetadataV2
+
+    companion object :
+        MetadataLoader<AndroidAbiMetadata, AndroidAbiMetadataV2, Module> {
+        override fun metadataClassFor(
+            schemaVersion: SchemaVersion
+        ): VersionedMetadataLoader<AndroidAbiMetadata> = when (schemaVersion) {
+            SchemaVersion.V1 -> AndroidAbiMetadataV1
+            SchemaVersion.V2 -> AndroidAbiMetadataV2
+        }
+
+        override fun loadAndMigrate(
+            schemaVersion: SchemaVersion, directory: Path, data: Module
+        ): AndroidAbiMetadataV2 {
+            val diskMetadata = metadataClassFor(schemaVersion).load(directory)
+            return diskMetadata.migrate(data, directory)
+        }
+    }
+}

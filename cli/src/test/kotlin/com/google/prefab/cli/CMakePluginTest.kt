@@ -18,20 +18,29 @@ package com.google.prefab.cli
 
 import com.google.prefab.api.Android
 import com.google.prefab.api.Package
+import com.google.prefab.api.SchemaVersion
 import com.google.prefab.cmake.CMakePlugin
 import com.google.prefab.cmake.sanitize
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CMakePluginTest {
+@RunWith(Parameterized::class)
+class CMakePluginTest(override val schemaVersion: SchemaVersion) :
+    PerSchemaTest {
+
+    companion object {
+        @Parameterized.Parameters(name = "schema version = {0}")
+        @JvmStatic
+        fun data(): List<SchemaVersion> = SchemaVersion.values().toList()
+    }
+
     private val staleOutputDir: Path =
         Files.createTempDirectory("stale").apply {
             toFile().apply { deleteOnExit() }
@@ -77,12 +86,10 @@ class CMakePluginTest {
 
     @Test
     fun `basic project generates correctly`() {
-        val fooPath =
-            Paths.get(this.javaClass.getResource("packages/foo").toURI())
+        val fooPath = packagePath("foo")
         val foo = Package(fooPath)
 
-        val quxPath =
-            Paths.get(this.javaClass.getResource("packages/qux").toURI())
+        val quxPath = packagePath("qux")
         val qux = Package(quxPath)
 
         CMakePlugin(outputDirectory.toFile(), listOf(foo, qux)).generate(
@@ -185,9 +192,7 @@ class CMakePluginTest {
 
     @Test
     fun `header only module works`() {
-        val packagePath = Paths.get(
-            this.javaClass.getResource("packages/header_only").toURI()
-        )
+        val packagePath = packagePath("header_only")
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 21))
@@ -244,9 +249,7 @@ class CMakePluginTest {
 
     @Test
     fun `per-platform includes work`() {
-        val path = Paths.get(
-            this.javaClass.getResource("packages/per_platform_includes").toURI()
-        )
+        val path = packagePath("per_platform_includes")
         val pkg = Package(path)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 19))
@@ -307,9 +310,7 @@ class CMakePluginTest {
 
     @Test
     fun `old NDKs use non-arch specific layout`() {
-        val packagePath = Paths.get(
-            this.javaClass.getResource("packages/header_only").toURI()
-        )
+        val packagePath = packagePath("header_only")
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
@@ -364,9 +365,7 @@ class CMakePluginTest {
 
     @Test
     fun `mixed static and shared libraries are both exposed when compatible`() {
-        val packagePath = Paths.get(
-            this.javaClass.getResource("packages/static_and_shared").toURI()
-        )
+        val packagePath = packagePath("static_and_shared")
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
@@ -405,9 +404,7 @@ class CMakePluginTest {
 
     @Test
     fun `incompatible libraries are skipped for static STL`() {
-        val packagePath = Paths.get(
-            this.javaClass.getResource("packages/static_and_shared").toURI()
-        )
+        val packagePath = packagePath("static_and_shared")
         val pkg = Package(packagePath)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxStatic, 18))
@@ -437,10 +434,8 @@ class CMakePluginTest {
     @Test
     fun `empty include directories are skipped`() {
         // Regression test for https://issuetracker.google.com/178594838.
-        val packagePath = Paths.get(
-            this.javaClass.getResource("packages/no_headers").toURI()
-        )
-        val pkg = Package(packagePath)
+        val path = packagePath("no_headers")
+        val pkg = Package(path)
         CMakePlugin(outputDirectory.toFile(), listOf(pkg)).generate(
             listOf(Android(Android.Abi.Arm64, 21, Android.Stl.CxxShared, 18))
         )
@@ -449,7 +444,7 @@ class CMakePluginTest {
             outputDirectory.resolve(cmakeConfigFile(pkg.name)).toFile()
         assertTrue(configFile.exists())
 
-        val moduleDir = packagePath.resolve("modules/runtime").sanitize()
+        val moduleDir = path.resolve("modules/runtime").sanitize()
         assertEquals(
             """
             if(NOT TARGET no_headers::runtime)
