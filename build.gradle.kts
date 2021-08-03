@@ -82,6 +82,12 @@ subprojects {
         kotlinOptions.jvmTarget = "1.8"
         kotlinOptions.allWarningsAsErrors = true
     }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
+    }
 }
 
 tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
