@@ -73,9 +73,12 @@ This generates [CMake packages] that can be imported into your build with
 [find_package]. See the [Build System Support in Prefab] page for more
 information.
 
+For an end-to-end example of a non-Gradle workflow, see [example-workflow.md].
+
 [CMake packages]: https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html
 [find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
 [Build System Support in Prefab]: build-systems.md
+[example-workflow.md]: example-workflow.md
 
 ## Package Structure {#package-structure}
 
