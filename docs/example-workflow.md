@@ -13,12 +13,10 @@ The recommended workflow for Android is to use AGP.
 - [The ndkports googletest AAR]. Download the "aar" artifact of the latest
   version.
 
-[the prefab cli]:
-  https://maven.google.com/web/index.html?q=prefab#com.google.prefab:cli
-[cmake]: https://cmake.org/download/
-[the android ndk]: https://developer.android.com/ndk/downloads
-[the ndkports googletest aar]:
-  https://maven.google.com/web/index.html?q=thirdpar#com.android.ndk.thirdparty:googletest
+[The Prefab CLI]: https://maven.google.com/web/index.html#com.google.prefab:cli
+[CMake]: https://cmake.org/download/
+[The Android NDK]: https://developer.android.com/ndk/downloads
+[The ndkports googletest AAR]: https://maven.google.com/web/index.html#com.android.ndk.thirdparty:googletest
 
 ## Running Prefab
 
