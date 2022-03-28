@@ -29,7 +29,7 @@ Studio's [Using native dependencies] page for more information.
 
 [Using native dependencies]: https://developer.android.com/studio/build/native-dependencies
 
-Prefab is a command line tool the operates on the packages described in this
+Prefab is a command line tool that operates on the packages described in this
 document. At least one package path must be given, and each package path should
 point to the directory structure described in [Package
 Structure](#package-structure).
