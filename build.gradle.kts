@@ -84,9 +84,7 @@ subprojects {
     }
 
     java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(8))
-        }
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
