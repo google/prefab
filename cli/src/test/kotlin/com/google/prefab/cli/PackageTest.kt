@@ -116,8 +116,27 @@ class PackageTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
 
     @Test
     fun `package with missing artifact id does not load`() {
+        // We need a file path of "missing_id/libs/android.", but Windows
+        // will fail to clone the repo if a directory ends with ".". To work
+        // around this, we save the directory with a windows-friendly name
+        // and recreate the package in a temp directory.
+        val tempDir = kotlin.io.path.createTempDirectory().toFile()
+        tempDir.deleteOnExit()
+
         assertFailsWith(MissingArtifactIDException::class) {
-            Package(packagePath("missing_artifact_id"))
+            packagePath("missing_artifact_id").apply {
+                toFile().copyRecursively(tempDir)
+            }
+
+            // Because tempDir (and its contents) is a copy, we can safely move
+            // the old path to the new path.
+            val oldLibDir = tempDir.resolve("modules/missing_id/libs/android")
+            val newLibDir = tempDir.resolve("modules/missing_id/libs/android.")
+
+            oldLibDir.copyRecursively(newLibDir)
+            oldLibDir.deleteRecursively()
+
+            Package(tempDir.toPath())
         }
     }
 
