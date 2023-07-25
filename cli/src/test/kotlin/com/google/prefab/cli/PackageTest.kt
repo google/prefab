@@ -25,9 +25,12 @@ import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import com.google.prefab.api.SchemaVersion
 import com.google.prefab.api.UnsupportedPlatformException
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.nio.file.Paths
+import kotlin.io.path.createDirectories
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -115,9 +118,25 @@ class PackageTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     fun `package with missing artifact id does not load`() {
+        // We need a file path of "missing_id/libs/android.", but Windows
+        // will fail to clone the repo if a directory ends with ".". To work
+        // around this, we save the directory with a windows-friendly way and
+        // then generate the rest.
+        val tempDirPath = kotlin.io.path.createTempDirectory()
+
+        val tempDirFile = tempDirPath.toFile()
+        tempDirFile.deleteOnExit()
+
         assertFailsWith(MissingArtifactIDException::class) {
-            Package(packagePath("missing_artifact_id"))
+            packagePath("missing_artifact_id").toFile().apply {
+                copyRecursively(tempDirFile)
+            }
+
+            tempDirPath.resolve("modules/missing_id/libs/android.").createDirectories()
+
+            Package(tempDirPath)
         }
     }
 
