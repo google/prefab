@@ -30,6 +30,7 @@ import org.junit.jupiter.api.condition.OS
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.nio.file.Paths
+import kotlin.io.path.createDirectories
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -121,25 +122,21 @@ class PackageTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
     fun `package with missing artifact id does not load`() {
         // We need a file path of "missing_id/libs/android.", but Windows
         // will fail to clone the repo if a directory ends with ".". To work
-        // around this, we save the directory with a windows-friendly name
-        // and recreate the package in a temp directory.
-        val tempDir = kotlin.io.path.createTempDirectory().toFile()
-        tempDir.deleteOnExit()
+        // around this, we save the directory with a windows-friendly way and
+        // then generate the rest.
+        val tempDirPath = kotlin.io.path.createTempDirectory()
+
+        val tempDirFile = tempDirPath.toFile()
+        tempDirFile.deleteOnExit()
 
         assertFailsWith(MissingArtifactIDException::class) {
-            packagePath("missing_artifact_id").apply {
-                toFile().copyRecursively(tempDir)
+            packagePath("missing_artifact_id").toFile().apply {
+                copyRecursively(tempDirFile)
             }
 
-            // Because tempDir (and its contents) is a copy, we can safely move
-            // the old path to the new path.
-            val oldLibDir = tempDir.resolve("modules/missing_id/libs/android")
-            val newLibDir = tempDir.resolve("modules/missing_id/libs/android.")
+            tempDirPath.resolve("modules/missing_id/libs/android.").createDirectories()
 
-            oldLibDir.copyRecursively(newLibDir)
-            oldLibDir.deleteRecursively()
-
-            Package(tempDir.toPath())
+            Package(tempDirPath)
         }
     }
 
