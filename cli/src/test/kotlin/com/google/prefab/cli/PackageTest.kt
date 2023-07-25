@@ -25,6 +25,8 @@ import com.google.prefab.api.Package
 import com.google.prefab.api.PlatformDataInterface
 import com.google.prefab.api.SchemaVersion
 import com.google.prefab.api.UnsupportedPlatformException
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.nio.file.Paths
@@ -115,6 +117,7 @@ class PackageTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     fun `package with missing artifact id does not load`() {
         // We need a file path of "missing_id/libs/android.", but Windows
         // will fail to clone the repo if a directory ends with ".". To work
