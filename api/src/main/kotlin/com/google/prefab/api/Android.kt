@@ -49,6 +49,7 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
     val api: Int = when (abi) {
         Abi.Arm32, Abi.X86 -> api
         Abi.Arm64, Abi.X86_64 -> max(api, 21)
+        Abi.Riscv64 -> max(api, 35)
     }
 
     override fun toString(): String = "Android($abi, $api, $stl)"
@@ -75,6 +76,11 @@ class Android(val abi: Abi, api: Int, val stl: Stl, val ndkMajorVersion: Int) :
          * 64-bit Arm.
          */
         Arm64("arm64-v8a", "aarch64-linux-android"),
+
+        /**
+         * 64-bit Riscv.
+         */
+        Riscv64("riscv64", "riscv64-linux-android"),
 
         /**
          * 32-bit x86.
