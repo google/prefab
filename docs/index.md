@@ -54,19 +54,23 @@ Options:
   -h, --help           Show this message and exit
 ```
 
-For example, if your app is using CMake, c++_shared, NDK r21, and has a
+For example, if your app is using CMake, c++_shared, NDK r27, and has a
 minSdkVersion of 21, you can generate [CMake packages] for your dependencies in
-the `deps` directory with the following commands:
+the `deps` directory with the following commands. Note that the 'riscv64' ABI
+below is set to '--os-version 35' as that is the minimum supported version for
+that ABI.
 
 ```bash
 $ prefab --output out/arm64-v8a --build-system cmake --platform android \
-    --abi arm64-v8a --os-version 21 --ndk-version 21 --stl c++_shared deps
+    --abi arm64-v8a --os-version 21 --ndk-version 27 --stl c++_shared deps
 $ prefab --output out/armeabi-v7a --build-system cmake --platform android \
-    --abi armeabi-v7a --os-version 21 --ndk-version 21 --stl c++_shared deps
+    --abi armeabi-v7a --os-version 21 --ndk-version 27 --stl c++_shared deps
 $ prefab --output out/x86 --build-system cmake --platform android \
-    --abi x86 --os-version 21 --ndk-version 21 --stl c++_shared deps
+    --abi x86 --os-version 21 --ndk-version 27 --stl c++_shared deps
 $ prefab --output out/x86_64 --build-system cmake --platform android \
-    --abi x86_64 --os-version 21 --ndk-version 21 --stl c++_shared deps
+    --abi x86_64 --os-version 21 --ndk-version 27 --stl c++_shared deps
+$ prefab --output out/riscv64 --build-system cmake --platform android \
+    --abi riscv64 --os-version 35 --ndk-version 27 --stl c++_shared deps
 ```
 
 This generates [CMake packages] that can be imported into your build with

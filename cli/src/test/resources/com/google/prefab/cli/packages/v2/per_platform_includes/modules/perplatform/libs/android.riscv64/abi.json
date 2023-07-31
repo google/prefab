@@ -1,0 +1,6 @@
+{
+  "abi": "riscv64",
+  "api": 35,
+  "ndk": 27,
+  "stl": "c++_shared"
+}

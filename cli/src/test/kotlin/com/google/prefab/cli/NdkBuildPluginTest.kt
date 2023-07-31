@@ -135,6 +135,28 @@ class NdkBuildPluginTest(override val schemaVersion: SchemaVersion) :
 
             endif  # arm64-v8a
 
+            ifeq ($(TARGET_ARCH_ABI),riscv64)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := bar
+            LOCAL_SRC_FILES := $barDir/libs/android.riscv64/libbar.so
+            LOCAL_EXPORT_C_INCLUDES := $barDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS := -landroid
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := baz
+            LOCAL_SRC_FILES := $bazDir/libs/android.riscv64/libbaz.so
+            LOCAL_EXPORT_C_INCLUDES := $bazDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES := bar
+            LOCAL_EXPORT_STATIC_LIBRARIES := libqux
+            LOCAL_EXPORT_LDLIBS := -llog
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            endif  # riscv64
+
             ifeq ($(TARGET_ARCH_ABI),x86)
 
             include $(CLEAR_VARS)
@@ -218,6 +240,19 @@ class NdkBuildPluginTest(override val schemaVersion: SchemaVersion) :
             include ${'$'}(PREBUILT_STATIC_LIBRARY)
 
             endif  # arm64-v8a
+
+            ifeq ($(TARGET_ARCH_ABI),riscv64)
+
+            include ${'$'}(CLEAR_VARS)
+            LOCAL_MODULE := libqux
+            LOCAL_SRC_FILES := $quxDir/libs/android.riscv64/libqux.a
+            LOCAL_EXPORT_C_INCLUDES := $quxDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES := bar
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include ${'$'}(PREBUILT_STATIC_LIBRARY)
+
+            endif  # riscv64
 
             ifeq ($(TARGET_ARCH_ABI),x86)
 
@@ -446,6 +481,19 @@ class NdkBuildPluginTest(override val schemaVersion: SchemaVersion) :
             include $(PREBUILT_SHARED_LIBRARY)
 
             endif  # arm64-v8a
+
+            ifeq ($(TARGET_ARCH_ABI),riscv64)
+
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := perplatform
+            LOCAL_SRC_FILES := $modDir/libs/android.riscv64/libperplatform.so
+            LOCAL_EXPORT_C_INCLUDES := $modDir/include
+            LOCAL_EXPORT_SHARED_LIBRARIES :=
+            LOCAL_EXPORT_STATIC_LIBRARIES :=
+            LOCAL_EXPORT_LDLIBS :=
+            include $(PREBUILT_SHARED_LIBRARY)
+
+            endif  # riscv64
 
             ifeq ($(TARGET_ARCH_ABI),x86)
 

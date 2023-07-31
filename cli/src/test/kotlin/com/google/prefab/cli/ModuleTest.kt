@@ -59,7 +59,7 @@ class ModuleTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
             module.linkLibsForPlatform(android)
         )
 
-        assertEquals(4, module.libraries.size)
+        assertEquals(5, module.libraries.size)
     }
 
     @Test
@@ -79,7 +79,7 @@ class ModuleTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
             module.linkLibsForPlatform(android)
         )
 
-        assertEquals(4, module.libraries.size)
+        assertEquals(5, module.libraries.size)
     }
 
     @Test
