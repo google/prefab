@@ -23,7 +23,7 @@ plugins {
 }
 dependencies {
     implementation("com.github.ajalt.clikt:clikt:3.2.0")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.13.9")
 
     implementation(project(":api"))
     runtimeOnly(project(":cmake-plugin"))
