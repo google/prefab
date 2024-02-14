@@ -19,12 +19,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 /**
  * Project Kotlin version.
  */
-val kotlinVersion: String = "1.5.20"
+val kotlinVersion: String = "1.9.22"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    kotlin("jvm").version("1.5.20")
-    kotlin("plugin.serialization").version("1.5.20")
+    kotlin("jvm").version("1.9.22")
+    kotlin("plugin.serialization").version("1.9.22")
     distribution
     id("maven-publish")
     id("com.github.jk1.dependency-license-report").version("1.16")
@@ -107,6 +107,8 @@ licenseReport {
 
         // Apache 2.0
         "com.github.ajalt.clikt:clikt",
+        "org.jetbrains.kotlin:kotlin-stdlib-common",
+        "org.jetbrains.kotlinx:kotlinx-serialization-bom",
         "org.jetbrains.kotlinx:kotlinx-serialization-core",
         "org.jetbrains.kotlinx:kotlinx-serialization-json",
     ).toTypedArray()
