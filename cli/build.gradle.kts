@@ -22,7 +22,7 @@ plugins {
     id("com.github.johnrengelman.shadow").version("8.1.1")
 }
 dependencies {
-    implementation("com.github.ajalt.clikt:clikt:3.2.0")
+    implementation("com.github.ajalt.clikt:clikt:4.2.2")
     testImplementation("io.mockk:mockk:1.13.9")
 
     implementation(project(":api"))

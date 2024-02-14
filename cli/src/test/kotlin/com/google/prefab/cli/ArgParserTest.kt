@@ -55,6 +55,9 @@ class ArgParserTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
             NoRunTestCli().parse(
                 listOf(
                     "--platform", "android",
+                    "--os-version", "21",
+                    "--ndk-version", "26",
+                    "--stl", "c++_shared",
                     "--output",
                     "out",
                     fooPath.toString()
@@ -70,6 +73,9 @@ class ArgParserTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
                 listOf(
                     "--platform", "android",
                     "--build-system", "ndk-build",
+                    "--os-version", "21",
+                    "--ndk-version", "26",
+                    "--stl", "c++_shared",
                     fooPath.toString()
                 )
             )
@@ -83,6 +89,9 @@ class ArgParserTest(override val schemaVersion: SchemaVersion) : PerSchemaTest {
                 listOf(
                     "--platform", "android",
                     "--build-system", "ndk-build",
+                    "--os-version", "21",
+                    "--ndk-version", "26",
+                    "--stl", "c++_shared",
                     "--output", file.path,
                     fooPath.toString()
                 )

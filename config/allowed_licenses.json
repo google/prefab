@@ -8,6 +8,12 @@
     },
     {
       "moduleLicense": "The Apache Software License, Version 2.0"
+    },
+    {
+      "moduleLicense": "The MIT License"
+    },
+    {
+      "moduleLicense": "Apache License, Version 2.0"
     }
   ]
 }

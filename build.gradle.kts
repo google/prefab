@@ -107,10 +107,16 @@ licenseReport {
 
         // Apache 2.0
         "com.github.ajalt.clikt:clikt",
+        "com.github.ajalt.mordant:mordant",
+
+        // MIT
+        "com.github.ajalt.colormath:colormath",
+
         "org.jetbrains.kotlin:kotlin-stdlib-common",
         "org.jetbrains.kotlinx:kotlinx-serialization-bom",
         "org.jetbrains.kotlinx:kotlinx-serialization-core",
         "org.jetbrains.kotlinx:kotlinx-serialization-json",
+        "org.jetbrains:markdown",
     ).toTypedArray()
 }
 
