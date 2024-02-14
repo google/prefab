@@ -27,7 +27,7 @@ plugins {
     kotlin("plugin.serialization").version("1.9.22")
     distribution
     id("maven-publish")
-    id("com.github.jk1.dependency-license-report").version("1.16")
+    id("com.github.jk1.dependency-license-report").version("2.4")
     id("org.jetbrains.dokka").version("1.4.32")
 }
 
