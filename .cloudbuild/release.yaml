@@ -1,5 +1,5 @@
 steps:
-  - name: "gradle:7.1-jdk8"
+  - name: "gradle:8.6-jdk8"
     entrypoint: "gradle"
     args: ["--stacktrace", "-Pprefab.release", "release"]
 artifacts:
