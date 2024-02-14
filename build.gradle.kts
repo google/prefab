@@ -28,7 +28,7 @@ plugins {
     distribution
     id("maven-publish")
     id("com.github.jk1.dependency-license-report").version("2.4")
-    id("org.jetbrains.dokka").version("1.4.32")
+    id("org.jetbrains.dokka").version("1.9.10")
 }
 
 repositories {
