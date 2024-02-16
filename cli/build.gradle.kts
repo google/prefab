@@ -19,8 +19,10 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     application
+    signing
     id("com.github.johnrengelman.shadow").version("8.1.0")
 }
+
 dependencies {
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
     testImplementation("io.mockk:mockk:1.13.9")
@@ -81,5 +83,14 @@ publishing {
                 }
             }
         }
+    }
+}
+
+if (rootProject.hasProperty("prefab.sign")) {
+    signing {
+        val signingKey: String? by project
+        val signingPassword: String? by project
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications["shadow"])
     }
 }

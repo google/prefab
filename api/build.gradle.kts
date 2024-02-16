@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+    signing
+}
+
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     testImplementation("io.mockk:mockk:1.13.9")
@@ -49,5 +53,14 @@ publishing {
                 }
             }
         }
+    }
+}
+
+if (rootProject.hasProperty("prefab.sign")) {
+    signing {
+        val signingKey: String? by project
+        val signingPassword: String? by project
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications["default"])
     }
 }
