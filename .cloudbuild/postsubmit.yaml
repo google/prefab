@@ -1,7 +1,7 @@
 steps:
   - name: "gradle:8.6-jdk8"
     entrypoint: "gradle"
-    args: ["--stacktrace", "build"]
+    args: ["--stacktrace", "-Pprefab.sign", "build"]
 artifacts:
   objects:
     location: "gs://$_ARTIFACT_BUCKET/$PROJECT_ID/$BUILD_ID"

@@ -1,4 +1,4 @@
 steps:
   - name: "gradle:8.6-jdk8"
     entrypoint: "gradle"
-    args: ["--stacktrace", "build"]
+    args: ["--stacktrace", "-Pprefab.sign", "build"]
