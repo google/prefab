@@ -19,7 +19,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     application
-    id("com.github.johnrengelman.shadow").version("8.1.1")
+    id("com.github.johnrengelman.shadow").version("8.1.0")
 }
 dependencies {
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
